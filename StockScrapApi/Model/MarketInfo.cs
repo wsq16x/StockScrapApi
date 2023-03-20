@@ -20,8 +20,8 @@ namespace StockScrapApi.Models
         public float? DaysRangeMax { get; set; }
         public float? Weaks52MovingRangeMin { get; set; }
         public float? Weaks52MovingRangeMax { get; set; }
-        public float? change { get; set; }
-        public float? changePerct { get; set; }
+        public float? Change { get; set; }
+        public float? ChangePerct { get; set; }
         public float? DaysVolume { get; set; }
         public int? DaysTrade { get; set; }
         public float? MarketCapitalization { get; set; }

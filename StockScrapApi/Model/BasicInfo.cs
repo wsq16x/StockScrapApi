@@ -16,7 +16,7 @@ namespace StockScrapApi.Models
         public float? FaceParValue { get; set; }
         public float? TotalOutstandingSecurity { get; set; }
         public string InstrumentType { get; set; }
-        public int MarketLot { get; set; }
+        public int? MarketLot { get; set; }
         public string Sector { get; set; }
         public DateTime TimeStamp { get; set; }
 
