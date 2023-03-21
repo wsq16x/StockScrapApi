@@ -1,3 +1,4 @@
+using Hangfire;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
 using StockScrapApi.Configuration;
@@ -14,6 +15,9 @@ builder.Services.ConfigureSeriLog();
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
         options.UseSqlServer(builder.Configuration.GetConnectionString("SqlServerConnection"))
     );
+
+//hangfire
+builder.Services.ConfigureHangfire(builder.Configuration);
 
 builder.Services.AddAutoMapper(typeof(MapperProfile));
 // Add services to the container.
@@ -38,11 +42,11 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-
-app.UseHttpsRedirection();
-
+app.UseHangfireDashboard();
+app.UseRouting();
 app.UseAuthorization();
-
+app.UseEndpoints(opt => opt.MapHangfireDashboard("/hangfire"));
+app.UseHttpsRedirection();
 app.MapControllers();
 
 app.Run();

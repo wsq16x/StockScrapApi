@@ -1,5 +1,7 @@
+using Hangfire;
 using Microsoft.AspNetCore.Mvc;
 using StockScrapApi.Data;
+using StockScrapApi.Hangfire;
 using StockScrapApi.Scraper;
 
 namespace StockScrapApi.Controllers
@@ -16,12 +18,14 @@ namespace StockScrapApi.Controllers
         private readonly ILogger<WeatherForecastController> _logger;
         private readonly IScraper _scraper;
         private readonly ApplicationDbContext _context;
+        private readonly IBackgroundJobClient _backGroundJobClient;
 
-        public WeatherForecastController(ILogger<WeatherForecastController> logger, ApplicationDbContext context, IScraper scraper)
+        public WeatherForecastController(ILogger<WeatherForecastController> logger, ApplicationDbContext context, IScraper scraper, IBackgroundJobClient backgroundJobClient)
         {
             _logger = logger;
             _scraper = scraper;
             _context = context;
+            _backGroundJobClient = backgroundJobClient;
 
         }
 
@@ -40,8 +44,8 @@ namespace StockScrapApi.Controllers
         [HttpPost]
         public ActionResult Scrape()
         {
-            _scraper.ScrapeAndPush();
-            return Ok();
+            var jobId = _backGroundJobClient.Schedule(() => _scraper.ScrapeAndPush(), TimeSpan.FromMinutes(5));
+            return Ok(string.Format("Job Created with {0}", jobId));
         }
     }
 }

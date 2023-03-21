@@ -25,7 +25,7 @@ namespace StockScrapApi.Scraper
             _scrapeData = scrapeData;
         }
 
-        public async void ScrapeAndPush()
+        public async Task ScrapeAndPush()
         {
             var rootUrl = @"https://www.dsebd.org";
 
@@ -36,7 +36,7 @@ namespace StockScrapApi.Scraper
             Console.WriteLine(compList.Count);
 
             //parsing table
-            async void GetAllCompInfo()
+            async Task GetAllCompInfo()
             {
                 foreach (var comp in compList)
                 {

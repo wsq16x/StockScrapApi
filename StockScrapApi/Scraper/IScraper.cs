@@ -8,6 +8,6 @@ namespace StockScrapApi.Scraper
 {
     public interface IScraper
     {
-        void ScrapeAndPush();
+        Task ScrapeAndPush();
     }
 }
