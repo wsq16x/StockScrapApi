@@ -1,5 +1,4 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using StockScrapApi.Model;
 using StockScrapApi.Models;
 using System;
 using System.Collections.Generic;
@@ -23,5 +22,6 @@ namespace StockScrapApi.Data
         public DbSet<OtherInfo> otherInfo { get; set; }
         public DbSet<ShareHoldingPerct> shareHoldingPercts { get; set; }
         public DbSet<ScrapeInfo> scrapeInfos { get; set; }
+        public DbSet<Security> securities { get; set; }
     }
 }

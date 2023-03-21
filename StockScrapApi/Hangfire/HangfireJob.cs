@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace StockScrapApi.Hangfire
 {
-    public class HangfireJob
+    public static class HangfireJob
     {
         
     }

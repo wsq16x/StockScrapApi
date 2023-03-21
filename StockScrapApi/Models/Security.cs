@@ -6,12 +6,13 @@ using System.Threading.Tasks;
 
 namespace StockScrapApi.Models
 {
-    public class Company
+    public class Security
     {
         public int Id { get; set; }
-        public string CompanyName { get; set; }
-        public string CompanyCode { get; set; }
+        public string SecurityName { get; set; }
+        public string SecurityCode { get; set; }
         public string ScripCode { get; set; }
+        public string Isin { get; set; }
         public string Url { get; set; }
     }
 }

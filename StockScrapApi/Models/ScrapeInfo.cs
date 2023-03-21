@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace StockScrapApi.Model
+namespace StockScrapApi.Models
 {
     public class ScrapeInfo
     {

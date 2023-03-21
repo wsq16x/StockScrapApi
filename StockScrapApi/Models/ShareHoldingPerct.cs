@@ -9,11 +9,11 @@ namespace StockScrapApi.Models
     public class ShareHoldingPerct
     {
         public int Id { get; set; }
-        public float? SponsorDirector { get; set; }
-        public float? Govt { get; set; }
-        public float? Institute { get; set; }
-        public float? Foreign { get; set; }
-        public float? Public { get; set; }
+        public double? SponsorDirector { get; set; }
+        public double? Govt { get; set; }
+        public double? Institute { get; set; }
+        public double? Foreign { get; set; }
+        public double? Public { get; set; }
         public string Month { get; set; }
         public int Year { get; set; }
         public int Day { get; set; }
