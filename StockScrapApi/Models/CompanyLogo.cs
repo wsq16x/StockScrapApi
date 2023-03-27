@@ -8,16 +8,13 @@ using System.Threading.Tasks;
 
 namespace StockScrapApi.Models
 {
-    public class Company
+    public class CompanyLogo
     {
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public Guid Id { get; set; }
-        public string CompanyName { get; set; }
-        public string CompanyCode { get; set; }
-        public string ScripCode { get; set; }
-        public string Url { get; set; }
-        public CompanyAddress? CompanyAddress { get; set; }
-        public OtherInfo? OtherInfo { get; set; }
+        public string? LogoPath { get; set; }
+        public Guid CompanyId { get; set; }
+        public Company Company { get; set; }
     }
 }

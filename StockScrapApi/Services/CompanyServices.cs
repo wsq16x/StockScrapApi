@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace StockScrapApi.Scraper
+namespace StockScrapApi.Services
 {
-    public class ScrapeCompanyInfo
+    public class CompanyServices
     {
 
     }

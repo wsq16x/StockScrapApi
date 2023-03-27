@@ -12,8 +12,8 @@ using StockScrapApi.Data;
 namespace StockScrapApi.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20230321045935_revolution")]
-    partial class revolution
+    [Migration("20230327061125_changedToGuid")]
+    partial class changedToGuid
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -25,51 +25,24 @@ namespace StockScrapApi.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-            modelBuilder.Entity("StockScrapApi.Model.ScrapeInfo", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("CompanyCode")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("CompanyId")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime>("TimeStamp")
-                        .HasColumnType("datetime2");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("CompanyId");
-
-                    b.ToTable("scrapeInfos");
-                });
-
             modelBuilder.Entity("StockScrapApi.Models.BasicInfo", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
+                        .HasColumnType("uniqueidentifier");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                    b.Property<double?>("AuthorizedCapital")
+                        .HasColumnType("float");
 
-                    b.Property<float?>("AuthorizedCapital")
-                        .HasColumnType("real");
-
-                    b.Property<int>("CompanyId")
-                        .HasColumnType("int");
+                    b.Property<Guid>("CompanyId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("DebutTradingDate")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<float?>("FaceParValue")
-                        .HasColumnType("real");
+                    b.Property<double?>("FaceParValue")
+                        .HasColumnType("float");
 
                     b.Property<string>("InstrumentType")
                         .IsRequired()
@@ -78,8 +51,8 @@ namespace StockScrapApi.Migrations
                     b.Property<int?>("MarketLot")
                         .HasColumnType("int");
 
-                    b.Property<float?>("PaidUpCapital")
-                        .HasColumnType("real");
+                    b.Property<double?>("PaidUpCapital")
+                        .HasColumnType("float");
 
                     b.Property<string>("Sector")
                         .IsRequired()
@@ -88,8 +61,8 @@ namespace StockScrapApi.Migrations
                     b.Property<DateTime>("TimeStamp")
                         .HasColumnType("datetime2");
 
-                    b.Property<float?>("TotalOutstandingSecurity")
-                        .HasColumnType("real");
+                    b.Property<double?>("TotalOutstandingSecurity")
+                        .HasColumnType("float");
 
                     b.HasKey("Id");
 
@@ -100,11 +73,9 @@ namespace StockScrapApi.Migrations
 
             modelBuilder.Entity("StockScrapApi.Models.Company", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("CompanyCode")
                         .IsRequired()
@@ -129,11 +100,9 @@ namespace StockScrapApi.Migrations
 
             modelBuilder.Entity("StockScrapApi.Models.CompanyAddress", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("AddrFactory")
                         .IsRequired()
@@ -143,8 +112,8 @@ namespace StockScrapApi.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("CompanyId")
-                        .HasColumnType("int");
+                    b.Property<Guid>("CompanyId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("Email")
                         .IsRequired()
@@ -180,69 +149,68 @@ namespace StockScrapApi.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("CompanyId");
+                    b.HasIndex("CompanyId")
+                        .IsUnique();
 
                     b.ToTable("companyAddresses");
                 });
 
             modelBuilder.Entity("StockScrapApi.Models.MarketInfo", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
+                        .HasColumnType("uniqueidentifier");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                    b.Property<double?>("Change")
+                        .HasColumnType("float");
 
-                    b.Property<float?>("Change")
-                        .HasColumnType("real");
+                    b.Property<double?>("ChangePerct")
+                        .HasColumnType("float");
 
-                    b.Property<float?>("ChangePerct")
-                        .HasColumnType("real");
+                    b.Property<double?>("ClosingPrice")
+                        .HasColumnType("float");
 
-                    b.Property<float?>("ClosingPrice")
-                        .HasColumnType("real");
+                    b.Property<double?>("ClosingPriceYesterday")
+                        .HasColumnType("float");
 
-                    b.Property<float?>("ClosingPriceYesterday")
-                        .HasColumnType("real");
+                    b.Property<Guid>("CompanyId")
+                        .HasColumnType("uniqueidentifier");
 
-                    b.Property<int>("CompanyId")
-                        .HasColumnType("int");
+                    b.Property<double?>("DaysRangeMax")
+                        .HasColumnType("float");
 
-                    b.Property<float?>("DaysRangeMax")
-                        .HasColumnType("real");
-
-                    b.Property<float?>("DaysRangeMin")
-                        .HasColumnType("real");
+                    b.Property<double?>("DaysRangeMin")
+                        .HasColumnType("float");
 
                     b.Property<int?>("DaysTrade")
                         .HasColumnType("int");
 
-                    b.Property<float?>("DaysValue")
-                        .HasColumnType("real");
+                    b.Property<double?>("DaysValue")
+                        .HasColumnType("float");
 
-                    b.Property<float?>("DaysVolume")
-                        .HasColumnType("real");
+                    b.Property<double?>("DaysVolume")
+                        .HasColumnType("float");
 
-                    b.Property<float?>("LastTradingPrice")
-                        .HasColumnType("real");
+                    b.Property<double?>("LastTradingPrice")
+                        .HasColumnType("float");
 
-                    b.Property<float?>("MarketCapitalization")
-                        .HasColumnType("real");
+                    b.Property<double?>("MarketCapitalization")
+                        .HasColumnType("float");
 
-                    b.Property<float?>("OpeningPrice")
-                        .HasColumnType("real");
+                    b.Property<double?>("OpeningPrice")
+                        .HasColumnType("float");
 
-                    b.Property<float?>("OpeningPriceAdjusted")
-                        .HasColumnType("real");
+                    b.Property<double?>("OpeningPriceAdjusted")
+                        .HasColumnType("float");
 
                     b.Property<DateTime>("TimeStamp")
                         .HasColumnType("datetime2");
 
-                    b.Property<float?>("Weaks52MovingRangeMax")
-                        .HasColumnType("real");
+                    b.Property<double?>("Weaks52MovingRangeMax")
+                        .HasColumnType("float");
 
-                    b.Property<float?>("Weaks52MovingRangeMin")
-                        .HasColumnType("real");
+                    b.Property<double?>("Weaks52MovingRangeMin")
+                        .HasColumnType("float");
 
                     b.HasKey("Id");
 
@@ -253,14 +221,12 @@ namespace StockScrapApi.Migrations
 
             modelBuilder.Entity("StockScrapApi.Models.OtherInfo", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
+                        .HasColumnType("uniqueidentifier");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("CompanyId")
-                        .HasColumnType("int");
+                    b.Property<Guid>("CompanyId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("ElectronicShare")
                         .IsRequired()
@@ -278,43 +244,135 @@ namespace StockScrapApi.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("CompanyId");
+                    b.HasIndex("CompanyId")
+                        .IsUnique();
 
                     b.ToTable("otherInfo");
                 });
 
+            modelBuilder.Entity("StockScrapApi.Models.Person", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Bio")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid>("CompanyId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Designation")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Image")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Phone")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CompanyId");
+
+                    b.ToTable("persons");
+                });
+
+            modelBuilder.Entity("StockScrapApi.Models.ScrapeInfo", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("CompanyCode")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid>("CompanyId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("TimeStamp")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CompanyId");
+
+                    b.ToTable("scrapeInfos");
+                });
+
+            modelBuilder.Entity("StockScrapApi.Models.Security", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Isin")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ScripCode")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("SecurityCode")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("SecurityName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Url")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("securities");
+                });
+
             modelBuilder.Entity("StockScrapApi.Models.ShareHoldingPerct", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
+                        .HasColumnType("uniqueidentifier");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                    b.Property<Guid>("CompanyId")
+                        .HasColumnType("uniqueidentifier");
 
-                    b.Property<int>("CompanyId")
-                        .HasColumnType("int");
+                    b.Property<DateTime>("Date")
+                        .HasColumnType("datetime2");
 
                     b.Property<int>("Day")
                         .HasColumnType("int");
 
-                    b.Property<float?>("Foreign")
-                        .HasColumnType("real");
+                    b.Property<double?>("Foreign")
+                        .HasColumnType("float");
 
-                    b.Property<float?>("Govt")
-                        .HasColumnType("real");
+                    b.Property<double?>("Govt")
+                        .HasColumnType("float");
 
-                    b.Property<float?>("Institute")
-                        .HasColumnType("real");
+                    b.Property<double?>("Institute")
+                        .HasColumnType("float");
 
                     b.Property<string>("Month")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<float?>("Public")
-                        .HasColumnType("real");
+                    b.Property<double?>("Public")
+                        .HasColumnType("float");
 
-                    b.Property<float?>("SponsorDirector")
-                        .HasColumnType("real");
+                    b.Property<double?>("SponsorDirector")
+                        .HasColumnType("float");
 
                     b.Property<DateTime>("TimeStamp")
                         .HasColumnType("datetime2");
@@ -327,17 +385,6 @@ namespace StockScrapApi.Migrations
                     b.HasIndex("CompanyId");
 
                     b.ToTable("shareHoldingPercts");
-                });
-
-            modelBuilder.Entity("StockScrapApi.Model.ScrapeInfo", b =>
-                {
-                    b.HasOne("StockScrapApi.Models.Company", "Company")
-                        .WithMany()
-                        .HasForeignKey("CompanyId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Company");
                 });
 
             modelBuilder.Entity("StockScrapApi.Models.BasicInfo", b =>
@@ -354,8 +401,8 @@ namespace StockScrapApi.Migrations
             modelBuilder.Entity("StockScrapApi.Models.CompanyAddress", b =>
                 {
                     b.HasOne("StockScrapApi.Models.Company", "Company")
-                        .WithMany()
-                        .HasForeignKey("CompanyId")
+                        .WithOne("CompanyAddress")
+                        .HasForeignKey("StockScrapApi.Models.CompanyAddress", "CompanyId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -376,6 +423,28 @@ namespace StockScrapApi.Migrations
             modelBuilder.Entity("StockScrapApi.Models.OtherInfo", b =>
                 {
                     b.HasOne("StockScrapApi.Models.Company", "Company")
+                        .WithOne("OtherInfo")
+                        .HasForeignKey("StockScrapApi.Models.OtherInfo", "CompanyId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Company");
+                });
+
+            modelBuilder.Entity("StockScrapApi.Models.Person", b =>
+                {
+                    b.HasOne("StockScrapApi.Models.Company", "Company")
+                        .WithMany()
+                        .HasForeignKey("CompanyId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Company");
+                });
+
+            modelBuilder.Entity("StockScrapApi.Models.ScrapeInfo", b =>
+                {
+                    b.HasOne("StockScrapApi.Models.Company", "Company")
                         .WithMany()
                         .HasForeignKey("CompanyId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -393,6 +462,13 @@ namespace StockScrapApi.Migrations
                         .IsRequired();
 
                     b.Navigation("Company");
+                });
+
+            modelBuilder.Entity("StockScrapApi.Models.Company", b =>
+                {
+                    b.Navigation("CompanyAddress");
+
+                    b.Navigation("OtherInfo");
                 });
 #pragma warning restore 612, 618
         }

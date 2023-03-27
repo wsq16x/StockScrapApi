@@ -4,6 +4,7 @@ using Serilog;
 using StockScrapApi.Configuration;
 using StockScrapApi.Data;
 using StockScrapApi.Hangfire;
+using StockScrapApi.HostedServices;
 using StockScrapApi.Profiles;
 using StockScrapApi.Scraper;
 
@@ -28,6 +29,8 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddTransient<IScrapeData, ScrapeData>();
 builder.Services.AddTransient<IScraper, Scraper>();
+builder.Services.AddHostedService<ConsumeService>();
+builder.Services.AddScoped<IScopedProcessingService, ScopedProcessingService>();
 //builder.Services.AddTransient<IHangfireJob, HangfireJob>();
 
 //This is requird for .NET 6

@@ -4,6 +4,7 @@ using StockScrapApi.Models;
 using StockScrapApi.Types;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -191,6 +192,8 @@ namespace StockScrapApi.Scraper
                             Foreign = double.Parse(foreign1),
                             Public = double.Parse(public1)
                         };
+
+                        modelShare1.Date = new DateTime(modelShare1.Year, DateTime.ParseExact(modelShare1.Month, "MMM", CultureInfo.CurrentCulture).Month, modelShare1.Day);
 
                         listShare.Add(modelShare1);
                     }

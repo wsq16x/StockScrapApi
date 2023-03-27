@@ -15,6 +15,8 @@ namespace StockScrapApi.Profiles
         {
             CreateMap<CompanyTypeDto, Company>();
             CreateMap<CompanyTypeDto, Security>();
+            CreateMap<ShareHoldingPerct, ShareHoldingPerctReadDto>();
+            CreateMap<Company, CompanyReadDto>();
         }
     }
 }

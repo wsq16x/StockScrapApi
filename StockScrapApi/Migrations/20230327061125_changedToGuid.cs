@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace StockScrapApi.Migrations
 {
     /// <inheritdoc />
-    public partial class Initial : Migration
+    public partial class changedToGuid : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -15,11 +15,11 @@ namespace StockScrapApi.Migrations
                 name: "companies",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     CompanyName = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     CompanyCode = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    ScripCode = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                    ScripCode = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Url = table.Column<string>(type: "nvarchar(max)", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -27,21 +27,36 @@ namespace StockScrapApi.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "securities",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    SecurityName = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    SecurityCode = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    ScripCode = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Isin = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Url = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_securities", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "basicInfo",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    AuthorizedCapital = table.Column<float>(type: "real", nullable: true),
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    AuthorizedCapital = table.Column<double>(type: "float", nullable: true),
                     DebutTradingDate = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    PaidUpCapital = table.Column<float>(type: "real", nullable: true),
-                    FaceParValue = table.Column<float>(type: "real", nullable: true),
-                    TotalOutstandingSecurity = table.Column<float>(type: "real", nullable: true),
+                    PaidUpCapital = table.Column<double>(type: "float", nullable: true),
+                    FaceParValue = table.Column<double>(type: "float", nullable: true),
+                    TotalOutstandingSecurity = table.Column<double>(type: "float", nullable: true),
                     InstrumentType = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    MarketLot = table.Column<int>(type: "int", nullable: false),
+                    MarketLot = table.Column<int>(type: "int", nullable: true),
                     Sector = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     TimeStamp = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    CompanyId = table.Column<int>(type: "int", nullable: false)
+                    CompanyId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -51,15 +66,14 @@ namespace StockScrapApi.Migrations
                         column: x => x.CompanyId,
                         principalTable: "companies",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
                 name: "companyAddresses",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     AddrHeadOffice = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     AddrFactory = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Phone = table.Column<string>(type: "nvarchar(max)", nullable: false),
@@ -70,7 +84,7 @@ namespace StockScrapApi.Migrations
                     SecretaryPhone = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     SecretaryMobile = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     SecretaryEmail = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    CompanyId = table.Column<int>(type: "int", nullable: false)
+                    CompanyId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -80,32 +94,31 @@ namespace StockScrapApi.Migrations
                         column: x => x.CompanyId,
                         principalTable: "companies",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
                 name: "marketInfo",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    LastTradingPrice = table.Column<float>(type: "real", nullable: true),
-                    ClosingPrice = table.Column<float>(type: "real", nullable: true),
-                    OpeningPrice = table.Column<float>(type: "real", nullable: true),
-                    OpeningPriceAdjusted = table.Column<float>(type: "real", nullable: true),
-                    ClosingPriceYesterday = table.Column<float>(type: "real", nullable: true),
-                    DaysValue = table.Column<float>(type: "real", nullable: true),
-                    DaysRangeMin = table.Column<float>(type: "real", nullable: true),
-                    DaysRangeMax = table.Column<float>(type: "real", nullable: true),
-                    Weaks52MovingRangeMin = table.Column<float>(type: "real", nullable: true),
-                    Weaks52MovingRangeMax = table.Column<float>(type: "real", nullable: true),
-                    change = table.Column<float>(type: "real", nullable: true),
-                    changePerct = table.Column<float>(type: "real", nullable: true),
-                    DaysVolume = table.Column<float>(type: "real", nullable: true),
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    LastTradingPrice = table.Column<double>(type: "float", nullable: true),
+                    ClosingPrice = table.Column<double>(type: "float", nullable: true),
+                    OpeningPrice = table.Column<double>(type: "float", nullable: true),
+                    OpeningPriceAdjusted = table.Column<double>(type: "float", nullable: true),
+                    ClosingPriceYesterday = table.Column<double>(type: "float", nullable: true),
+                    DaysValue = table.Column<double>(type: "float", nullable: true),
+                    DaysRangeMin = table.Column<double>(type: "float", nullable: true),
+                    DaysRangeMax = table.Column<double>(type: "float", nullable: true),
+                    Weaks52MovingRangeMin = table.Column<double>(type: "float", nullable: true),
+                    Weaks52MovingRangeMax = table.Column<double>(type: "float", nullable: true),
+                    Change = table.Column<double>(type: "float", nullable: true),
+                    ChangePerct = table.Column<double>(type: "float", nullable: true),
+                    DaysVolume = table.Column<double>(type: "float", nullable: true),
                     DaysTrade = table.Column<int>(type: "int", nullable: true),
-                    MarketCapitalization = table.Column<float>(type: "real", nullable: true),
+                    MarketCapitalization = table.Column<double>(type: "float", nullable: true),
                     TimeStamp = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    CompanyId = table.Column<int>(type: "int", nullable: false)
+                    CompanyId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -115,20 +128,19 @@ namespace StockScrapApi.Migrations
                         column: x => x.CompanyId,
                         principalTable: "companies",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
                 name: "otherInfo",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    ListingYear = table.Column<int>(type: "int", nullable: false),
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    ListingYear = table.Column<int>(type: "int", nullable: true),
                     MarketCategory = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     ElectronicShare = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Remarks = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    CompanyId = table.Column<int>(type: "int", nullable: false)
+                    Remarks = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    CompanyId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -138,46 +150,68 @@ namespace StockScrapApi.Migrations
                         column: x => x.CompanyId,
                         principalTable: "companies",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
-                name: "scrapeInfo",
+                name: "persons",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    TimeStamp = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    CompanyCode = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    CompanyId = table.Column<int>(type: "int", nullable: false)
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    Designation = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Bio = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Phone = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Image = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    CompanyId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_scrapeInfo", x => x.Id);
+                    table.PrimaryKey("PK_persons", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_scrapeInfo_companies_CompanyId",
+                        name: "FK_persons_companies_CompanyId",
                         column: x => x.CompanyId,
                         principalTable: "companies",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "scrapeInfos",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    TimeStamp = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    CompanyCode = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    CompanyId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_scrapeInfos", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_scrapeInfos_companies_CompanyId",
+                        column: x => x.CompanyId,
+                        principalTable: "companies",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
                 name: "shareHoldingPercts",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    SponsorDirector = table.Column<float>(type: "real", nullable: true),
-                    Govt = table.Column<float>(type: "real", nullable: true),
-                    Institute = table.Column<float>(type: "real", nullable: true),
-                    Foreign = table.Column<float>(type: "real", nullable: true),
-                    Public = table.Column<float>(type: "real", nullable: true),
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    SponsorDirector = table.Column<double>(type: "float", nullable: true),
+                    Govt = table.Column<double>(type: "float", nullable: true),
+                    Institute = table.Column<double>(type: "float", nullable: true),
+                    Foreign = table.Column<double>(type: "float", nullable: true),
+                    Public = table.Column<double>(type: "float", nullable: true),
+                    Date = table.Column<DateTime>(type: "datetime2", nullable: false),
                     Month = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Year = table.Column<int>(type: "int", nullable: false),
                     Day = table.Column<int>(type: "int", nullable: false),
                     TimeStamp = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    CompanyId = table.Column<int>(type: "int", nullable: false)
+                    CompanyId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -187,7 +221,7 @@ namespace StockScrapApi.Migrations
                         column: x => x.CompanyId,
                         principalTable: "companies",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateIndex(
@@ -198,7 +232,8 @@ namespace StockScrapApi.Migrations
             migrationBuilder.CreateIndex(
                 name: "IX_companyAddresses_CompanyId",
                 table: "companyAddresses",
-                column: "CompanyId");
+                column: "CompanyId",
+                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_marketInfo_CompanyId",
@@ -208,11 +243,17 @@ namespace StockScrapApi.Migrations
             migrationBuilder.CreateIndex(
                 name: "IX_otherInfo_CompanyId",
                 table: "otherInfo",
+                column: "CompanyId",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_persons_CompanyId",
+                table: "persons",
                 column: "CompanyId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_scrapeInfo_CompanyId",
-                table: "scrapeInfo",
+                name: "IX_scrapeInfos_CompanyId",
+                table: "scrapeInfos",
                 column: "CompanyId");
 
             migrationBuilder.CreateIndex(
@@ -237,7 +278,13 @@ namespace StockScrapApi.Migrations
                 name: "otherInfo");
 
             migrationBuilder.DropTable(
-                name: "scrapeInfo");
+                name: "persons");
+
+            migrationBuilder.DropTable(
+                name: "scrapeInfos");
+
+            migrationBuilder.DropTable(
+                name: "securities");
 
             migrationBuilder.DropTable(
                 name: "shareHoldingPercts");

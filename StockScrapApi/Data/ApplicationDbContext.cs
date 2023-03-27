@@ -23,5 +23,6 @@ namespace StockScrapApi.Data
         public DbSet<ShareHoldingPerct> shareHoldingPercts { get; set; }
         public DbSet<ScrapeInfo> scrapeInfos { get; set; }
         public DbSet<Security> securities { get; set; }
+        public DbSet<Person> persons { get; set; }
     }
 }

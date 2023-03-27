@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -8,7 +10,9 @@ namespace StockScrapApi.Models
 {
     public class CompanyAddress
     {
-        public int Id { get; set; }
+        [Key]
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        public Guid Id { get; set; }
         public string AddrHeadOffice { get; set; }
         public string AddrFactory { get; set; }
         public string Phone { get; set; }
@@ -20,7 +24,7 @@ namespace StockScrapApi.Models
         public string SecretaryMobile  { get; set;}
         public string SecretaryEmail { get; set; }
 
-        public int CompanyId { get; set; }
+        public Guid CompanyId { get; set; }
         public Company Company { get; set; }
     }
 }
