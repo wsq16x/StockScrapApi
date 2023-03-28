@@ -28,7 +28,7 @@ namespace StockScrapApi.Scraper
 
             var timeStamp = DateTime.Now;
 
-            GetAllCompInfo();
+            await GetAllCompInfo();
 
             Console.WriteLine(compList.Count);
 
@@ -51,7 +51,7 @@ namespace StockScrapApi.Scraper
                             var security = _mapper.Map<Security>(companyTypeDto);
                             security.Url = comp.Link;
                             _context.Add(security);
-                            _context.SaveChanges();
+                            await _context.SaveChangesAsync();
                         }
                     }
                     else
@@ -61,7 +61,7 @@ namespace StockScrapApi.Scraper
                             var company = _mapper.Map<Company>(companyTypeDto);
                             company.Url = comp.Link;
                             _context.Add(company);
-                            _context.SaveChanges();
+                            await _context.SaveChangesAsync();
                         }
                     }
 
@@ -130,7 +130,7 @@ namespace StockScrapApi.Scraper
                         _logger.LogInformation("Data Up-to-Date for {0}", CompCode);
                     }
 
-                    _context.SaveChanges();
+                    await _context.SaveChangesAsync();
                 }
             }
         }

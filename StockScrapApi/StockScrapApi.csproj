@@ -27,7 +27,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Media\PersonPhoto\" />
+    <Folder Include="wwwroot\Images\Companies\logo\" />
+    <Folder Include="wwwroot\Images\Persons\" />
   </ItemGroup>
 
 </Project>

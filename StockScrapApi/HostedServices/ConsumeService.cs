@@ -20,7 +20,18 @@ namespace StockScrapApi.HostedServices
         }
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
+            await FetchFirebaseData(stoppingToken);
             await EnqueueJob(stoppingToken);
+        }
+
+        private async Task FetchFirebaseData(CancellationToken stoppingToken)
+        {
+            using (var scope = _services.CreateScope())
+            {
+                var scopedProcessingService = scope.ServiceProvider.GetRequiredService<IScopedProcessingService>();
+
+                await scopedProcessingService.FetchFirebaseData(stoppingToken);
+            }
         }
 
         private async Task EnqueueJob(CancellationToken stoppingToken)

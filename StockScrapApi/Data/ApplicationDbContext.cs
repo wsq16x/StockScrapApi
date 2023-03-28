@@ -24,5 +24,6 @@ namespace StockScrapApi.Data
         public DbSet<ScrapeInfo> scrapeInfos { get; set; }
         public DbSet<Security> securities { get; set; }
         public DbSet<Person> persons { get; set; }
+        public DbSet<CompanyLogo> companyLogos { get; set; }
     }
 }

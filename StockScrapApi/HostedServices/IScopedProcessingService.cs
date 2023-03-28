@@ -9,5 +9,6 @@ namespace StockScrapApi.HostedServices
     public interface IScopedProcessingService
     {
         Task EnqueueJob(CancellationToken stoppingToken);
+        Task FetchFirebaseData(CancellationToken stoppingToken);
     }
 }

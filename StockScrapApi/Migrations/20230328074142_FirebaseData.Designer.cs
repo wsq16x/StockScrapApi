@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using StockScrapApi.Data;
 
@@ -11,9 +12,11 @@ using StockScrapApi.Data;
 namespace StockScrapApi.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20230328074142_FirebaseData")]
+    partial class FirebaseData
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -150,25 +153,6 @@ namespace StockScrapApi.Migrations
                         .IsUnique();
 
                     b.ToTable("companyAddresses");
-                });
-
-            modelBuilder.Entity("StockScrapApi.Models.CompanyLogo", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("CompanyId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("LogoPath")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("CompanyId");
-
-                    b.ToTable("companyLogos");
                 });
 
             modelBuilder.Entity("StockScrapApi.Models.MarketInfo", b =>
@@ -419,17 +403,6 @@ namespace StockScrapApi.Migrations
                     b.HasOne("StockScrapApi.Models.Company", "Company")
                         .WithOne("CompanyAddress")
                         .HasForeignKey("StockScrapApi.Models.CompanyAddress", "CompanyId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Company");
-                });
-
-            modelBuilder.Entity("StockScrapApi.Models.CompanyLogo", b =>
-                {
-                    b.HasOne("StockScrapApi.Models.Company", "Company")
-                        .WithMany()
-                        .HasForeignKey("CompanyId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 

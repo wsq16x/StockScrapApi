@@ -1,61 +1,133 @@
-﻿using Newtonsoft.Json;
+﻿using AutoMapper;
+using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using StockScrapApi.Data;
+using StockScrapApi.Dtos;
+using StockScrapApi.Models;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 
 namespace StockScrapApi.Helpers
 {
-    public class GetFirebaseData
+    public class GetFirebaseData : IGetFirebaseData
     {
         private readonly ApplicationDbContext _context;
-        private readonly HttpClient _client;
+        private readonly IMapper _mapper;
+        private readonly IWebHostEnvironment _webHostEnvironment;
+        private readonly ILogger<GetFirebaseData> _logger;
 
-        public GetFirebaseData(ApplicationDbContext context, HttpClient client)
+        public GetFirebaseData(ApplicationDbContext context, IWebHostEnvironment webHostEnvironment, IMapper mapper, ILogger<GetFirebaseData> logger)
         {
             _context = context;
-            _client = client;
+            _mapper = mapper;
+            _webHostEnvironment = webHostEnvironment;
+            _logger = logger;
         }
-        public async Task<bool> FetchData()
+        public async Task FetchData()
         {
             JObject personsRaw = JObject.Parse(await new HttpClient().GetStringAsync("https://data-archive-27724-default-rtdb.asia-southeast1.firebasedatabase.app/persons.json"));
             JObject companyRaw = JObject.Parse(await new HttpClient().GetStringAsync("https://data-archive-27724-default-rtdb.asia-southeast1.firebasedatabase.app/companies.json"));
 
-            List<Person> persons = new List<Person>();
-            List<Company> companies = new List<Company>();
+            List<PersonRaw> persons = new List<PersonRaw>();
+            List<CompanyRaw> companies = new List<CompanyRaw>();
 
             foreach (var ind in personsRaw)
             {
-                Person person = JsonConvert.DeserializeObject<Person>(ind.Value.ToString());
+                PersonRaw person = JsonConvert.DeserializeObject<PersonRaw>(ind.Value.ToString());
                 persons.Add(person);
 
-                var response = await _client.GetAsync(person.imageUrl);
             }
 
 
             foreach (var ind in companyRaw)
             {
-                Company company = JsonConvert.DeserializeObject<Company>(ind.Value.ToString());
+                CompanyRaw company = JsonConvert.DeserializeObject<CompanyRaw>(ind.Value.ToString());
                 companies.Add(company);
 
-                var response = await _client.GetAsync(company.logo);
+                var client = new HttpClient();
+                var guid = Guid.NewGuid().ToString();
+
+                var path = Path.Combine(_webHostEnvironment.WebRootPath, "Images", "Companies", "logo", string.Format("{0}.jpg", guid));
+
+                
+
+                var compId = _context.companies.Where(a => a.CompanyCode == company.tradingCode).Select(b => b.Id).FirstOrDefault();
+
+                var companyLogo = new CompanyLogo
+                {
+                    CompanyId = compId,
+                    LogoPath = path
+                };
+
+                var check = _context.companyLogos.Where(a => a.CompanyId == compId).Any();
+
+                if (!check)
+                {
+
+                    try
+                    {
+                        var imageBytes = await client.GetByteArrayAsync(company.logo);
+                        await File.WriteAllBytesAsync(path, imageBytes);
+                        _context.Add(companyLogo);
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.LogInformation(ex, "An error occured writing image.");
+                    }
+
+                }
+
+                client.Dispose();
 
             }
 
             var results = persons.Join(companies, a => a.CompanyId, b => b.companyId,
-                (a, b) => new NewPerson
+                (a, b) => new PersonRawDTO
                 {
                     Name = a.Name,
                     Designation = a.Designation,
                     Phone = a.phone,
-                    CompanyCode = b.tradingCode,
-                    imageUrl = a.imageUrl
+                    Email = a.email,
+                    Bio = a.Bio,
+                    ImageUrl = a.imageUrl,
+                    CompanyCode = b.tradingCode
                 }).ToList();
 
             Console.Write(JsonConvert.SerializeObject(results[1]));
 
-            return true;
+            foreach(var result in results)
+            {
+                var compId = _context.companies.Where(a=> a.CompanyCode == result.CompanyCode).Select(b => b.Id).FirstOrDefault();
+                var person = _mapper.Map<Person>(result);
+                person.CompanyId = compId;
+
+                var client = new HttpClient();
+                var guid = Guid.NewGuid().ToString();
+
+                var path = Path.Combine(_webHostEnvironment.WebRootPath, "Images", "Persons", String.Format("{0}.jpg", guid));
+
+
+                try
+                {
+                    var imageBytes = await client.GetByteArrayAsync(result.ImageUrl);
+                    await File.WriteAllBytesAsync(path, imageBytes);
+                    person.ImagePath = path;
+
+                    _context.Add(person);
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogInformation(ex, "An error occured writing image.");
+                }
+
+
+            }
+
+            _context.SaveChanges();
+
         }
 
-        public class Person
+        public class PersonRaw
         {
             public string PersonId { get; set; }
             public string Designation { get; set; }
@@ -67,7 +139,7 @@ namespace StockScrapApi.Helpers
             public string CompanyId { get; set; }
         }
 
-        public class Company
+        public class CompanyRaw
         {
             public string companyId { get; set; }
             public string companyName { get; set; }
@@ -76,17 +148,6 @@ namespace StockScrapApi.Helpers
             public string siteLink { get; set; }
             public DateTime? time { get; set; }
             public string tradingCode { get; set; }
-        }
-
-        public class NewPerson
-        {
-            public string Designation { get; set; }
-            public string Name { get; set; }
-            public string Bio { get; set; }
-            public string Phone { get; set; }
-            public string email { get; set; }
-            public string imageUrl { get; set; }
-            public string CompanyCode { get; set; }
         }
     }
 }
