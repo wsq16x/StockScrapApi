@@ -31,6 +31,7 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddTransient<IScrapeData, ScrapeData>();
 builder.Services.AddTransient<IScraper, Scraper>();
 builder.Services.AddTransient<IGetFirebaseData, GetFirebaseData>();
+builder.Services.AddTransient<IMapFirebaseData, MapFirebaseData>();
 builder.Services.AddTransient<IInitialize, Initialize>();
 builder.Services.AddHostedService<ConsumeService>();
 builder.Services.AddScoped<IScopedProcessingService, ScopedProcessingService>();

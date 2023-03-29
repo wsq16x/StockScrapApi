@@ -8,18 +8,17 @@ using System.Threading.Tasks;
 
 namespace StockScrapApi.Models
 {
-    public class Company
+    public class CompanyFirebase
     {
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public Guid Id { get; set; }
-        public string CompanyName { get; set; }
-        public string CompanyCode { get; set; }
-        public string ScripCode { get; set; }
-        public string Url { get; set; }
-        public CompanyAddress? CompanyAddress { get; set; }
-        public OtherInfo? OtherInfo { get; set; }
-        public CompanyLogo? CompanyLogo { get; set; }
-
+        public string companyID { get; set; }
+        public string companyName { get; set; }
+        public string scripCode { get; set; }
+        public string? logo { get; set; }
+        public string siteLink { get; set; }
+        public DateTime? time { get; set; }
+        public string tradingCode { get; set; }
     }
 }

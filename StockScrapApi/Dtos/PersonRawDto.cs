@@ -10,10 +10,11 @@ namespace StockScrapApi.Dtos
     {
         public string Designation { get; set; }
         public string Name { get; set; }
-        public string Bio { get; set; }
-        public string Phone { get; set; }
-        public string Email { get; set; }
-        public string ImageUrl { get; set; }
-        public string CompanyCode { get; set; }
+        public string? Bio { get; set; }
+        public string? Phone { get; set; }
+        public string? Email { get; set; }
+        public string? ImageUrl { get; set; }
+        public string tradingCode { get; set; }
+        public string? FirebaseCompId { get; set; }
     }
 }

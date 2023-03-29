@@ -25,5 +25,8 @@ namespace StockScrapApi.Data
         public DbSet<Security> securities { get; set; }
         public DbSet<Person> persons { get; set; }
         public DbSet<CompanyLogo> companyLogos { get; set; }
+        public DbSet<CompanyFirebase> companiesFirebase { get; set; }
+        public DbSet<PersonFirebase> personsFirebase { get; set; }
+        public DbSet<ProfilePicture> profilePictures { get; set; }
     }
 }

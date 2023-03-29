@@ -27,7 +27,7 @@ namespace StockScrapApi.HostedServices
         {
 
             //var jobId = _backGroundJobClient.Enqueue(() => _scraper.ScrapeAndPush());
-            RecurringJob.AddOrUpdate("scrapeData", () => _scraper.ScrapeAndPush(), "*/10 * * * *");
+            RecurringJob.AddOrUpdate("scrapeData", () => _scraper.ScrapeAndPush(), "*/40 * * * *");
 
             return Task.CompletedTask;
         }

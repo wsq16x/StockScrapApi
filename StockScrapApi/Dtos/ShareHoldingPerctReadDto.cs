@@ -20,8 +20,7 @@ namespace StockScrapApi.Dtos
         //public int Year { get; set; }
         //public int Day { get; set; }
         //public DateTime TimeStamp { get; set; }
-
-        public int CompanyId { get; set; }
-        public Company Company { get; set; }
+        public Guid CompanyId { get; set; }
+        //public Company Company { get; set; }
     }
 }

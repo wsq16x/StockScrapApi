@@ -1,11 +1,8 @@
 ﻿using AutoMapper;
-using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using StockScrapApi.Data;
-using StockScrapApi.Dtos;
 using StockScrapApi.Models;
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 
 namespace StockScrapApi.Helpers
 {
@@ -23,131 +20,108 @@ namespace StockScrapApi.Helpers
             _webHostEnvironment = webHostEnvironment;
             _logger = logger;
         }
+
         public async Task FetchData()
         {
-            JObject personsRaw = JObject.Parse(await new HttpClient().GetStringAsync("https://data-archive-27724-default-rtdb.asia-southeast1.firebasedatabase.app/persons.json"));
-            JObject companyRaw = JObject.Parse(await new HttpClient().GetStringAsync("https://data-archive-27724-default-rtdb.asia-southeast1.firebasedatabase.app/companies.json"));
-
-            List<PersonRaw> persons = new List<PersonRaw>();
-            List<CompanyRaw> companies = new List<CompanyRaw>();
-
-            foreach (var ind in personsRaw)
+            if (!_context.personsFirebase.Any())
             {
-                PersonRaw person = JsonConvert.DeserializeObject<PersonRaw>(ind.Value.ToString());
-                persons.Add(person);
+                List<PersonFirebase> persons = new List<PersonFirebase>();
 
+                JObject personsRaw = JObject.Parse(await new HttpClient().GetStringAsync("https://data-archive-27724-default-rtdb.asia-southeast1.firebasedatabase.app/persons.json"));
+                foreach (var ind in personsRaw)
+                {
+                    PersonFirebase person = JsonConvert.DeserializeObject<PersonFirebase>(ind.Value.ToString());
+                    person.email = person.email == "Email Not Found" ? null : person.email;
+                    person.email = person.email == "Phone Not Found" ? null : person.phone;
+
+                    if (person.CompanyId == null)
+                    {
+                        _logger.LogInformation("Found null value for Person {0}", person.PersonId);
+                    }
+                    persons.Add(person);
+                }
+
+                await _context.AddRangeAsync(persons);
             }
 
-
-            foreach (var ind in companyRaw)
+            if (!_context.companiesFirebase.Any())
             {
-                CompanyRaw company = JsonConvert.DeserializeObject<CompanyRaw>(ind.Value.ToString());
-                companies.Add(company);
+                JObject companyRaw = JObject.Parse(await new HttpClient().GetStringAsync("https://data-archive-27724-default-rtdb.asia-southeast1.firebasedatabase.app/companies.json"));
 
-                var client = new HttpClient();
-                var guid = Guid.NewGuid().ToString();
-
-                var path = Path.Combine(_webHostEnvironment.WebRootPath, "Images", "Companies", "logo", string.Format("{0}.jpg", guid));
-
-                
-
-                var compId = _context.companies.Where(a => a.CompanyCode == company.tradingCode).Select(b => b.Id).FirstOrDefault();
-
-                var companyLogo = new CompanyLogo
+                List<CompanyFirebase> companies = new List<CompanyFirebase>();
+                foreach (var ind in companyRaw)
                 {
-                    CompanyId = compId,
-                    LogoPath = path
-                };
+                    CompanyFirebase company = JsonConvert.DeserializeObject<CompanyFirebase>(ind.Value.ToString());
 
-                var check = _context.companyLogos.Where(a => a.CompanyId == compId).Any();
-
-                if (!check)
-                {
-
-                    try
+                    if (company.companyID == null)
                     {
-                        var imageBytes = await client.GetByteArrayAsync(company.logo);
-                        await File.WriteAllBytesAsync(path, imageBytes);
-                        _context.Add(companyLogo);
+                        _logger.LogInformation("Found null value for company {0}", company.tradingCode);
                     }
-                    catch (Exception ex)
+                    else
                     {
-                        _logger.LogInformation(ex, "An error occured writing image.");
+                        companies.Add(company);
                     }
 
                 }
-
-                client.Dispose();
-
-            }
-
-            var results = persons.Join(companies, a => a.CompanyId, b => b.companyId,
-                (a, b) => new PersonRawDTO
-                {
-                    Name = a.Name,
-                    Designation = a.Designation,
-                    Phone = a.phone,
-                    Email = a.email,
-                    Bio = a.Bio,
-                    ImageUrl = a.imageUrl,
-                    CompanyCode = b.tradingCode
-                }).ToList();
-
-            Console.Write(JsonConvert.SerializeObject(results[1]));
-
-            foreach(var result in results)
-            {
-                var compId = _context.companies.Where(a=> a.CompanyCode == result.CompanyCode).Select(b => b.Id).FirstOrDefault();
-                var person = _mapper.Map<Person>(result);
-                person.CompanyId = compId;
-
-                var client = new HttpClient();
-                var guid = Guid.NewGuid().ToString();
-
-                var path = Path.Combine(_webHostEnvironment.WebRootPath, "Images", "Persons", String.Format("{0}.jpg", guid));
-
-
-                try
-                {
-                    var imageBytes = await client.GetByteArrayAsync(result.ImageUrl);
-                    await File.WriteAllBytesAsync(path, imageBytes);
-                    person.ImagePath = path;
-
-                    _context.Add(person);
-                }
-                catch (Exception ex)
-                {
-                    _logger.LogInformation(ex, "An error occured writing image.");
-                }
-
+                await _context.AddRangeAsync(companies);
 
             }
 
-            _context.SaveChanges();
+            //var client = new HttpClient();
+            //var guid = Guid.NewGuid().ToString();
 
-        }
+            //var path = Path.Combine(_webHostEnvironment.WebRootPath, "Images", "Companies", "logo", string.Format("{0}.jpg", guid));
 
-        public class PersonRaw
-        {
-            public string PersonId { get; set; }
-            public string Designation { get; set; }
-            public string Name { get; set; }
-            public string Bio { get; set; }
-            public string phone { get; set; }
-            public string email { get; set; }
-            public string imageUrl { get; set; }
-            public string CompanyId { get; set; }
-        }
+            //var compId = _context.companies.Where(a => a.CompanyCode == company.tradingCode).Select(b => b.Id).FirstOrDefault();
 
-        public class CompanyRaw
-        {
-            public string companyId { get; set; }
-            public string companyName { get; set; }
-            public string scripCode { get; set; }
-            public string logo { get; set; }
-            public string siteLink { get; set; }
-            public DateTime? time { get; set; }
-            public string tradingCode { get; set; }
+            //var companyLogo = new CompanyLogo
+            //{
+            //    CompanyId = compId,
+            //    LogoPath = path
+            //};
+
+
+
+            //var results = persons.Join(companies, a => a.CompanyId, b => b.companyId,
+            //    (a, b) => new PersonRawDTO
+            //    {
+            //        Name = a.Name,
+            //        Designation = a.Designation,
+            //        Phone = a.phone,
+            //        Email = a.email,
+            //        Bio = a.Bio,
+            //        ImageUrl = a.imageUrl,
+            //        CompanyCode = b.tradingCode
+            //    }).ToList();
+
+            //foreach(var result in results)
+            //{
+            //    var compId = _context.companies.Where(a=> a.CompanyCode == result.CompanyCode).Select(b => b.Id).FirstOrDefault();
+            //    var person = _mapper.Map<Person>(result);
+            //    person.CompanyId = compId;
+
+            //    var client = new HttpClient();
+            //    var guid = Guid.NewGuid().ToString();
+
+            //    var path = Path.Combine(_webHostEnvironment.WebRootPath, "Images", "Persons", String.Format("{0}.jpg", guid));
+
+            //    try
+            //    {
+            //        var imageBytes = await client.GetByteArrayAsync(result.ImageUrl);
+            //        await File.WriteAllBytesAsync(path, imageBytes);
+            //        person.ImagePath = path;
+
+            //        _context.Add(person);
+            //    }
+            //    catch (Exception ex)
+            //    {
+            //        _logger.LogInformation(ex, "An error occured writing image.");
+            //    }
+
+            //}
+
+
+            await _context.SaveChangesAsync();
         }
     }
 }
