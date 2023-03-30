@@ -16,5 +16,6 @@ namespace StockScrapApi.Dtos
         public string Url { get; set; }      
         public CompanyAddress CompanyAddress { get; set; }
         public OtherInfo OtherInfo { get; set; }
+        public BasicInfo BasicInfo { get; set; }
     }
 }

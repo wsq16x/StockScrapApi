@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using StockScrapApi.Data;
 
@@ -7,18 +6,25 @@ namespace StockScrapApi.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class GetProfilePictureController : ControllerBase
+    public class PersonController : ControllerBase
     {
         private readonly ApplicationDbContext _context;
-        private readonly IWebHostEnvironment _webHostEnvironment;
 
-        public GetProfilePictureController(ApplicationDbContext context, IWebHostEnvironment webHostEnvironment)
+        public PersonController(ApplicationDbContext context)
         {
             _context = context;
-            _webHostEnvironment = webHostEnvironment;
         }
 
         [HttpGet]
+        public async Task<IActionResult> GetAllPersons()
+        {
+            var result = await _context.persons.ToListAsync();
+
+            return Ok(result);
+        }
+
+        [HttpGet]
+        [Route("ProfilePicture")]
         public async Task<IActionResult> GetProfilePictureById(Guid Id)
         {
             var absPath = @"C:\Users\wasiq\source\repos\StockScrapApi\StockScrapApi\wwwroot\";

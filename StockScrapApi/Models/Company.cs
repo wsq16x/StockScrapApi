@@ -20,6 +20,7 @@ namespace StockScrapApi.Models
         public CompanyAddress? CompanyAddress { get; set; }
         public OtherInfo? OtherInfo { get; set; }
         public CompanyLogo? CompanyLogo { get; set; }
+        public BasicInfo? BasicInfo { get; set; }
 
     }
 }

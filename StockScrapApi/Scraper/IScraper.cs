@@ -9,7 +9,7 @@ namespace StockScrapApi.Scraper
 {
     public interface IScraper
     {
-        [AutomaticRetry(Attempts = 0)]
-        Task ScrapeAndPush();
+        [AutomaticRetry(Attempts = 5)]
+        Task ScrapeAndPush(bool? automaticRetry=false, bool? forceScrape=false);
     }
 }

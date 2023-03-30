@@ -37,6 +37,15 @@ builder.Services.AddHostedService<ConsumeService>();
 builder.Services.AddScoped<IScopedProcessingService, ScopedProcessingService>();
 //builder.Services.AddTransient<IHangfireJob, HangfireJob>();
 
+//add CORS and configure CORS
+builder.Services.AddCors(f =>
+{
+    f.AddPolicy("AllowAll", f =>
+    f.AllowAnyOrigin()
+    .AllowAnyMethod()
+    .AllowAnyHeader());
+});
+
 //This is requird for .NET 6
 builder.Host.UseSerilog();
 
@@ -51,6 +60,7 @@ if (app.Environment.IsDevelopment())
 
 app.UseHangfireDashboard();
 app.UseRouting();
+app.UseCors("AllowAll");
 app.UseAuthorization();
 app.UseEndpoints(opt => opt.MapHangfireDashboard("/hangfire"));
 app.UseHttpsRedirection();

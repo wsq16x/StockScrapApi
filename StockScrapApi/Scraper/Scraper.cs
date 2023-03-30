@@ -11,26 +11,44 @@ namespace StockScrapApi.Scraper
         private readonly IMapper _mapper;
         private readonly ILogger<Scraper> _logger;
         private readonly IScrapeData _scrapeData;
+        private readonly IBackgroundJobClient _backgroundJobClient;
 
-        public Scraper(ApplicationDbContext context, IMapper mapper, ILogger<Scraper> logger, IScrapeData scrapeData)
+        public Scraper(ApplicationDbContext context, IMapper mapper, ILogger<Scraper> logger, IScrapeData scrapeData, IBackgroundJobClient backgroundJobClient)
         {
             _context = context;
             _mapper = mapper;
             _logger = logger;
             _scrapeData = scrapeData;
+            _backgroundJobClient = backgroundJobClient;
         }
 
-        public async Task ScrapeAndPush()
+        public async Task ScrapeAndPush(bool? automaticRetry = false, bool? forceScrape = false)
         {
             var rootUrl = @"https://www.dsebd.org";
 
-            var compList = _scrapeData.GetCompanyLinks();
+            var client = new HttpClient();
 
+            var response = await client.GetAsync("https://www.dsebd.org/company_listing.php");
+
+            //if (!response.IsSuccessStatusCode)
+            //{
+            //    if(automaticRetry == true)
+            //    {
+            //        var threshHold = TimeSpan.Parse("22:00:00");
+            //        if (DateTime.Now.TimeOfDay < threshHold)
+            //        {
+            //            var JobId = _backgroundJobClient.Schedule(() => ScrapeAndPush(true, false), TimeSpan.FromMinutes(20));
+            //            _logger.LogWarning("Website Unreachable, Will try again at {0}", DateTime.Now + TimeSpan.FromMinutes(20));
+            //        }
+            //    }
+
+            //    return;
+            //}
+
+            var compList = _scrapeData.GetCompanyLinks();
             var timeStamp = DateTime.Now;
 
             await GetAllCompInfo();
-
-            Console.WriteLine(compList.Count);
 
             //parsing table
             async Task GetAllCompInfo()
@@ -38,6 +56,7 @@ namespace StockScrapApi.Scraper
                 foreach (var comp in compList)
                 {
                     var CompCode = comp.CompName;
+
                     var allTables = _scrapeData.GetTables(rootUrl, comp.Link);
 
                     var checkComp = _context.companies.Where(t => t.CompanyCode == CompCode).Any();
@@ -93,6 +112,7 @@ namespace StockScrapApi.Scraper
                         {
                             var BasicInfo = _scrapeData.GetBasicInfo(allTables);
                             BasicInfo.CompanyId = companyId;
+                            BasicInfo.TimeStamp = DateTime.Now;
 
                             _context.Add(BasicInfo);
                         }
@@ -109,14 +129,20 @@ namespace StockScrapApi.Scraper
                                 _context.Add(item);
                             }
                         }
-                        
+
                         var checkMarketInfo = _context.marketInfo.Where(a => a.TimeStamp.Date == DateTime.Now.Date && a.CompanyId == companyId).Any();
+
+
+                        if (forceScrape == true)
+                        {
+                            checkMarketInfo = false;
+                        }
 
                         if (!checkMarketInfo)
                         {
                             var marketInfo = _scrapeData.GetMarketInfo(allTables);
                             marketInfo.CompanyId = companyId;
-                            marketInfo.TimeStamp = timeStamp;
+                            marketInfo.TimeStamp = DateTime.Now;
                             _context.Add(marketInfo);
                         }
                     }//
@@ -133,6 +159,7 @@ namespace StockScrapApi.Scraper
                     await _context.SaveChangesAsync();
                 }
             }
+
         }
     }
 }

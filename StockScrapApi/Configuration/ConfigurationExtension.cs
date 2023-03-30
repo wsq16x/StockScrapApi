@@ -16,7 +16,8 @@ namespace StockScrapApi.Configuration
         {
             Log.Logger = new LoggerConfiguration()
             .MinimumLevel.Override("Microsoft", LogEventLevel.Warning)
-            .WriteTo.Seq("http://localhost:5341")
+            //.WriteTo.Seq("http://localhost:5341")
+            .WriteTo.Console()
             .CreateLogger();
         }
 
