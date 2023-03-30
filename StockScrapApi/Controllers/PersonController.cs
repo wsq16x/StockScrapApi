@@ -9,10 +9,12 @@ namespace StockScrapApi.Controllers
     public class PersonController : ControllerBase
     {
         private readonly ApplicationDbContext _context;
+        private readonly IWebHostEnvironment _hostEnvironment;
 
-        public PersonController(ApplicationDbContext context)
+        public PersonController(ApplicationDbContext context, IWebHostEnvironment hostEnvironment)
         {
             _context = context;
+            _hostEnvironment = hostEnvironment;
         }
 
         [HttpGet]
@@ -27,7 +29,7 @@ namespace StockScrapApi.Controllers
         [Route("ProfilePicture")]
         public async Task<IActionResult> GetProfilePictureById(Guid Id)
         {
-            var absPath = @"C:\Users\wasiq\source\repos\StockScrapApi\StockScrapApi\wwwroot\";
+            var absPath = _hostEnvironment.WebRootPath;
             var path = await _context.profilePictures.Where(a => a.PersonId == Id).Select(b => b.ImagePath).FirstOrDefaultAsync();
 
             return File(Path.GetRelativePath(absPath, path), "image/jpg");

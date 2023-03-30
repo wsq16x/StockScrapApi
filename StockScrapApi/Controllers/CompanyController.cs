@@ -3,6 +3,7 @@ using AutoMapper.QueryableExtensions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Hosting;
 using StockScrapApi.Data;
 using StockScrapApi.Dtos;
 
@@ -15,12 +16,14 @@ namespace StockScrapApi.Controllers
         private readonly ApplicationDbContext _context;
         private readonly ILogger<CompanyController> _logger;
         private readonly IMapper _mapper;
+        private readonly IWebHostEnvironment _hostEnvironment;
 
-        public CompanyController(ApplicationDbContext context, ILogger<CompanyController> logger, IMapper mapper)
+        public CompanyController(ApplicationDbContext context, ILogger<CompanyController> logger, IMapper mapper, IWebHostEnvironment hostEnvironment)
         {
             _context = context;
             _logger = logger;
             _mapper = mapper;
+            _hostEnvironment = hostEnvironment;
         }
 
         [HttpGet]
@@ -44,7 +47,7 @@ namespace StockScrapApi.Controllers
         [Route("logo")]
         public async Task<IActionResult> GetCompanyLogoById(Guid Id)
         {
-            var absPath = @"C:\Users\wasiq\source\repos\StockScrapApi\StockScrapApi\wwwroot\";
+            var absPath = _hostEnvironment.WebRootPath;
             var path = await _context.companyLogos.Where(a => a.CompanyId == Id).Select(b => b.LogoPath).FirstOrDefaultAsync();
 
             return File(Path.GetRelativePath(absPath, path), "image/jpg");
