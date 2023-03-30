@@ -57,7 +57,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
-
+app.ConfigureExceptionHandler();
 app.UseHangfireDashboard();
 app.UseRouting();
 app.UseCors("AllowAll");

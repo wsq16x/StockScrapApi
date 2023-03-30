@@ -38,9 +38,9 @@ namespace StockScrapApi.Helpers
             {
                 await _getFirebaseData.FetchData();
                 await _mapFirebaseData.MoveData();
-                await _mapFirebaseData.GetProfilePictures();
+                //await _mapFirebaseData.GetProfilePictures();
             }
-
+            await _mapFirebaseData.GetProfilePictures();
             await _mapFirebaseData.GetCompanyLogo();
 
         }

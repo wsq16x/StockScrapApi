@@ -1,7 +1,9 @@
 ﻿using Hangfire;
 using Hangfire.SqlServer;
+using Microsoft.AspNetCore.Diagnostics;
 using Serilog;
 using Serilog.Events;
+using StockScrapApi.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -21,6 +23,28 @@ namespace StockScrapApi.Configuration
             .CreateLogger();
         }
 
+        //custom service to handle exceptions
+        public static void ConfigureExceptionHandler(this IApplicationBuilder app)
+        {
+            app.UseExceptionHandler(error =>
+            {
+                error.Run(async context =>
+                {
+                    context.Response.StatusCode = StatusCodes.Status500InternalServerError;
+                    context.Response.ContentType = "application/json";
+                    var contextFeature = context.Features.Get<IExceptionHandlerFeature>();
+                    if (contextFeature != null)
+                    {
+                        Log.Error($"Something went wrong in the {contextFeature.Error}");
+                        await context.Response.WriteAsync(new Error
+                        {
+                            StatusCode = context.Response.StatusCode,
+                            Message = "Internal Server Error. Please Try Again Later."
+                        }.ToString());
+                    }
+                });
+            });
+        }
         public static void ConfigureHangfire(this IServiceCollection services, IConfiguration configuration)
         {
             services.AddHangfire(opt => opt
@@ -40,4 +64,5 @@ namespace StockScrapApi.Configuration
 
         }
     }
+
 }
