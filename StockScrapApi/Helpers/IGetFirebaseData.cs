@@ -8,6 +8,6 @@ namespace StockScrapApi.Helpers
 {
     public interface IGetFirebaseData
     {
-        public Task FetchData();
+        public Task<bool> FetchData();
     }
 }

@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Hangfire;
+using HtmlAgilityPack;
 using StockScrapApi.Data;
 using StockScrapApi.Models;
 
@@ -161,5 +162,6 @@ namespace StockScrapApi.Scraper
             }
 
         }
+
     }
 }

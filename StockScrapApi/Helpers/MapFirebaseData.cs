@@ -9,6 +9,7 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 
 namespace StockScrapApi.Helpers
 {
@@ -27,7 +28,7 @@ namespace StockScrapApi.Helpers
             _webHostEnvironment = webHostEnvironment;
         }
 
-        public async Task MoveData()
+        public async Task<bool> MoveData()
         {
             var data = await _context.personsFirebase.Join(_context.companiesFirebase, a => a.CompanyId, b => b.companyID,
                 (a, b) => new PersonRawDTO
@@ -53,17 +54,29 @@ namespace StockScrapApi.Helpers
                     var person = _mapper.Map<Person>(ind);
                     person.CompanyId = CompId;
 
-                    //persons.Add(person);
-                    _context.Add(person);
-                    try
-                    {
-                        await _context.SaveChangesAsync();
-                    }
-                    catch (Exception ex)
-                    {
-                        _logger.LogError(ex, "failed to Move Persons Data for {0}.", person.Email);
-                    }
+                    persons.Add(person);
+                    //_context.Add(person);
+                    //try
+                    //{
+                    //    await _context.SaveChangesAsync();
+                    //}
+                    //catch (Exception ex)
+                    //{
+                    //    _logger.LogError(ex, "failed to Move Persons Data for {0}.", person.Email);
+                    //}
                 }
+            }
+
+            await _context.AddRangeAsync(persons);
+            try
+            {
+                await _context.SaveChangesAsync();
+                return true;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "failed to Move Persons Data");
+                return false;
             }
 
         }
@@ -80,7 +93,7 @@ namespace StockScrapApi.Helpers
                     var client = new HttpClient();
                     //var guid = Guid.NewGuid().ToString();
 
-                    var path = Path.Combine(_webHostEnvironment.WebRootPath, "Images", "Persons", String.Format("{0}.jpg", person.Id));
+                    var path = Path.Combine(_webHostEnvironment.ContentRootPath, "Files", "Images", "Persons", "Pictures", String.Format("{0}.jpg", person.Id));
 
                     try
                     {
@@ -90,7 +103,7 @@ namespace StockScrapApi.Helpers
 
                         profPic.PersonId = person.Id;
                         //profPic.ImagePath = string.Format("{0}.jpg", person.Id);
-                        profPic.ImagePath = path;
+                        profPic.ImagePath = String.Format("{0}.jpg", person.Id);
 
                         _context.Add(profPic);
                         await _context.SaveChangesAsync();
@@ -125,18 +138,18 @@ namespace StockScrapApi.Helpers
                 {
                     var client = new HttpClient();
                     //var guid = Guid.NewGuid().ToString();
-
-                    var path = Path.Combine(_webHostEnvironment.WebRootPath, "Images", "Companies", "logo", String.Format("{0}.jpg", company.CompanyId));
+                    var path = Path.Combine(_webHostEnvironment.ContentRootPath, "Files", "Images", "Companies", "Logos", String.Format("{0}.jpg", company.CompanyId));
 
                     try
                     {
+
                         var imageBytes = await client.GetByteArrayAsync(company.ImageUrl);
                         await File.WriteAllBytesAsync(path, imageBytes);
                         var companyLogo = new CompanyLogo();
 
                         companyLogo.CompanyId = company.CompanyId;
                         //companyLogo.LogoPath = string.Format("{0}.jpg", company.CompanyId);
-                        companyLogo.LogoPath = path;
+                        companyLogo.LogoPath = String.Format("{0}.jpg", company.CompanyId);
 
                         _context.Add(companyLogo);
                         await _context.SaveChangesAsync();

@@ -21,7 +21,7 @@ namespace StockScrapApi.Helpers
             _logger = logger;
         }
 
-        public async Task FetchData()
+        public async Task<bool> FetchData()
         {
             if (!_context.personsFirebase.Any())
             {
@@ -61,67 +61,19 @@ namespace StockScrapApi.Helpers
                     {
                         companies.Add(company);
                     }
-
                 }
                 await _context.AddRangeAsync(companies);
-
             }
-
-            //var client = new HttpClient();
-            //var guid = Guid.NewGuid().ToString();
-
-            //var path = Path.Combine(_webHostEnvironment.WebRootPath, "Images", "Companies", "logo", string.Format("{0}.jpg", guid));
-
-            //var compId = _context.companies.Where(a => a.CompanyCode == company.tradingCode).Select(b => b.Id).FirstOrDefault();
-
-            //var companyLogo = new CompanyLogo
-            //{
-            //    CompanyId = compId,
-            //    LogoPath = path
-            //};
-
-
-
-            //var results = persons.Join(companies, a => a.CompanyId, b => b.companyId,
-            //    (a, b) => new PersonRawDTO
-            //    {
-            //        Name = a.Name,
-            //        Designation = a.Designation,
-            //        Phone = a.phone,
-            //        Email = a.email,
-            //        Bio = a.Bio,
-            //        ImageUrl = a.imageUrl,
-            //        CompanyCode = b.tradingCode
-            //    }).ToList();
-
-            //foreach(var result in results)
-            //{
-            //    var compId = _context.companies.Where(a=> a.CompanyCode == result.CompanyCode).Select(b => b.Id).FirstOrDefault();
-            //    var person = _mapper.Map<Person>(result);
-            //    person.CompanyId = compId;
-
-            //    var client = new HttpClient();
-            //    var guid = Guid.NewGuid().ToString();
-
-            //    var path = Path.Combine(_webHostEnvironment.WebRootPath, "Images", "Persons", String.Format("{0}.jpg", guid));
-
-            //    try
-            //    {
-            //        var imageBytes = await client.GetByteArrayAsync(result.ImageUrl);
-            //        await File.WriteAllBytesAsync(path, imageBytes);
-            //        person.ImagePath = path;
-
-            //        _context.Add(person);
-            //    }
-            //    catch (Exception ex)
-            //    {
-            //        _logger.LogInformation(ex, "An error occured writing image.");
-            //    }
-
-            //}
-
-
-            await _context.SaveChangesAsync();
+            try
+            {
+                await _context.SaveChangesAsync();
+                return true;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogInformation(ex, "Failed to write firebase Data.");
+                return false;
+            }
         }
     }
 }

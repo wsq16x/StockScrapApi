@@ -27,8 +27,11 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="wwwroot\Images\Companies\logo\" />
-    <Folder Include="wwwroot\Images\Persons\" />
+    <Folder Include="Files\Images\Companies\Logos\" />
+    <Folder Include="Files\Images\Persons\Pictures\" />
+    <Folder Include="Files\" />
+    <Folder Include="wwwroot\" />
   </ItemGroup>
+
 
 </Project>

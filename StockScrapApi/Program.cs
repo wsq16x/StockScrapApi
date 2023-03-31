@@ -1,5 +1,6 @@
 using Hangfire;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.FileProviders;
 using Serilog;
 using StockScrapApi.Configuration;
 using StockScrapApi.Data;
@@ -64,10 +65,19 @@ app.UseSwaggerUI(c =>
     string swaggerJsonBasePath = string.IsNullOrWhiteSpace(c.RoutePrefix) ? "." : "..";
     c.SwaggerEndpoint($"{swaggerJsonBasePath}/swagger/v1/swagger.json", "Hotel Listing API");
 });
-//app.ConfigureExceptionHandler();
+
+app.ConfigureExceptionHandler();
 app.UseHangfireDashboard();
 app.UseRouting();
 app.UseCors("AllowAll");
+
+app.UseStaticFiles(new StaticFileOptions
+{
+    FileProvider = new PhysicalFileProvider(
+            Path.Combine(builder.Environment.ContentRootPath, "Files", "Images")),
+            RequestPath = "/Images"
+});
+
 app.UseAuthorization();
 app.UseEndpoints(opt => opt.MapHangfireDashboard("/hangfire"));
 app.UseHttpsRedirection();

@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Hangfire;
+using Microsoft.AspNetCore.Mvc;
 using StockScrapApi.Data;
 using StockScrapApi.Scraper;
 using System;
@@ -15,19 +16,21 @@ namespace StockScrapApi.Helpers
         private readonly IGetFirebaseData _getFirebaseData;
         private readonly IScraper _scraper;
         private readonly IMapFirebaseData _mapFirebaseData;
+        private readonly IBackgroundJobClient _backgroundJobClient;
 
-        public Initialize(ApplicationDbContext context, IGetFirebaseData getFirebaseData, IScraper scraper, IMapFirebaseData mapFirebaseData)
+        public Initialize(ApplicationDbContext context, IGetFirebaseData getFirebaseData, IScraper scraper, IMapFirebaseData mapFirebaseData, IBackgroundJobClient backgroundJobClient)
         {
             _context = context;
             _getFirebaseData = getFirebaseData;
             _scraper = scraper;
             _mapFirebaseData = mapFirebaseData;
+            _backgroundJobClient = backgroundJobClient;
         }
 
         public async Task InitDatabase()
         {
             var checkCompany = _context.companies.Any();
-            var checkPerson = _context.personsFirebase.Any();
+            var checkPerson = _context.persons.Any();
 
             if (!checkCompany)
             {
@@ -36,12 +39,20 @@ namespace StockScrapApi.Helpers
             
             if (!checkPerson)
             {
-                await _getFirebaseData.FetchData();
-                await _mapFirebaseData.MoveData();
-                //await _mapFirebaseData.GetProfilePictures();
+                var fetch = await _getFirebaseData.FetchData();
+                if (fetch)
+                {
+                    var result = await _mapFirebaseData.MoveData();
+
+                    if (result)
+                    {
+                        var JobGetPorfilePictures = _backgroundJobClient.Enqueue(() => _mapFirebaseData.GetProfilePictures());
+                        var JobGetCompanyLogo = _backgroundJobClient.Enqueue(() => _mapFirebaseData.GetCompanyLogo());
+                    }
+                }
+                //await _mapFirebaseData.MoveData();
             }
-            await _mapFirebaseData.GetProfilePictures();
-            await _mapFirebaseData.GetCompanyLogo();
+            //await _mapFirebaseData.GetCompanyLogo();
 
         }
     }
