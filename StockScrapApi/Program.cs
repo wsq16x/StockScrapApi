@@ -85,12 +85,13 @@ app.MapControllers();
 
 try
 {
-    Log.Information("Application Is Starting");
+    Log.Information("Application Is Starting....");
     app.Run();
+    Log.Information("Application Started.... Yay!");
 }
 catch (Exception ex)
 {
-    Log.Fatal(ex, "Application Failed to start");
+    Log.Fatal(ex, "Application Failed to start!");
 }
 finally
 {
