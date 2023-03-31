@@ -87,7 +87,6 @@ try
 {
     Log.Information("Application Is Starting....");
     app.Run();
-    Log.Information("Application Started.... Yay!");
 }
 catch (Exception ex)
 {
