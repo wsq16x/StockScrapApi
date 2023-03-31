@@ -27,9 +27,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Files\Images\Companies\Logos\" />
-    <Folder Include="Files\Images\Persons\Pictures\" />
-    <Folder Include="Files\" />
     <Folder Include="wwwroot\" />
   </ItemGroup>
 
