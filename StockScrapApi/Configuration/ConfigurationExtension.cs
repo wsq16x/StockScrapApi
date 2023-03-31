@@ -17,9 +17,12 @@ namespace StockScrapApi.Configuration
         public static void ConfigureSeriLog(this IServiceCollection services)
         {
             Log.Logger = new LoggerConfiguration()
-            .MinimumLevel.Override("Microsoft", LogEventLevel.Warning)
-            //.WriteTo.Seq("http://localhost:5341")
-            .WriteTo.Console()
+            //.MinimumLevel.Override("Microsoft", LogEventLevel.Warning)
+            .WriteTo.Seq("http://localhost:5341")
+            //.WriteTo.File(path: ".logs\\log-.txt",
+            //      outputTemplate: "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz}[{Level:u3}]{Message:lj}{NewLine}{Exception}",
+            //      rollingInterval: RollingInterval.Day,
+            //      restrictedToMinimumLevel: LogEventLevel.Information)
             .CreateLogger();
         }
 

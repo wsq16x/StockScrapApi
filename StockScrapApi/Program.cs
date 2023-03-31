@@ -54,10 +54,17 @@ var app = builder.Build();
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
-    app.UseSwagger();
-    app.UseSwaggerUI();
+    //app.UseSwagger();
+    //app.UseSwaggerUI();
 }
-app.ConfigureExceptionHandler();
+
+app.UseSwagger();
+app.UseSwaggerUI(c =>
+{
+    string swaggerJsonBasePath = string.IsNullOrWhiteSpace(c.RoutePrefix) ? "." : "..";
+    c.SwaggerEndpoint($"{swaggerJsonBasePath}/swagger/v1/swagger.json", "Hotel Listing API");
+});
+//app.ConfigureExceptionHandler();
 app.UseHangfireDashboard();
 app.UseRouting();
 app.UseCors("AllowAll");
@@ -66,4 +73,17 @@ app.UseEndpoints(opt => opt.MapHangfireDashboard("/hangfire"));
 app.UseHttpsRedirection();
 app.MapControllers();
 
-app.Run();
+try
+{
+    Log.Information("Application Is Starting");
+    app.Run();
+}
+catch (Exception ex)
+{
+    Log.Fatal(ex, "Application Failed to start");
+}
+finally
+{
+    Log.CloseAndFlush();
+}
+

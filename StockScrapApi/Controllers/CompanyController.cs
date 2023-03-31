@@ -47,7 +47,8 @@ namespace StockScrapApi.Controllers
         [Route("logo")]
         public async Task<IActionResult> GetCompanyLogoById(Guid Id)
         {
-            var absPath = Path.Combine(_hostEnvironment.WebRootPath, "Images", "Companies", "logo");
+            //var absPath = Path.Combine(_hostEnvironment.WebRootPath, "Images", "Companies", "logo");
+            var absPath = _hostEnvironment.WebRootPath;
             var path = await _context.companyLogos.Where(a => a.CompanyId == Id).Select(b => b.LogoPath).FirstOrDefaultAsync();
 
             return File(Path.GetRelativePath(absPath, path), "image/jpg");

@@ -89,7 +89,8 @@ namespace StockScrapApi.Helpers
                         var profPic = new ProfilePicture();
 
                         profPic.PersonId = person.Id;
-                        profPic.ImagePath = string.Format("{0}.jpg", person.Id);
+                        //profPic.ImagePath = string.Format("{0}.jpg", person.Id);
+                        profPic.ImagePath = path;
 
                         _context.Add(profPic);
                         await _context.SaveChangesAsync();
@@ -134,7 +135,8 @@ namespace StockScrapApi.Helpers
                         var companyLogo = new CompanyLogo();
 
                         companyLogo.CompanyId = company.CompanyId;
-                        companyLogo.LogoPath = string.Format("{0}.jpg", company.CompanyId);
+                        //companyLogo.LogoPath = string.Format("{0}.jpg", company.CompanyId);
+                        companyLogo.LogoPath = path;
 
                         _context.Add(companyLogo);
                         await _context.SaveChangesAsync();
