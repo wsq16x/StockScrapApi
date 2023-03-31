@@ -29,10 +29,13 @@ namespace StockScrapApi.Controllers
         [Route("ProfilePicture")]
         public async Task<IActionResult> GetProfilePictureById(Guid Id)
         {
-            var absPath = _hostEnvironment.WebRootPath;
-            var path = await _context.profilePictures.Where(a => a.PersonId == Id).Select(b => b.ImagePath).FirstOrDefaultAsync();
-
-            return File(Path.GetRelativePath(absPath, path), "image/jpg");
+            var fileName = await _context.profilePictures.Where(a => a.PersonId == Id).Select(b => b.ImagePath).FirstOrDefaultAsync();
+            var path = Path.Combine(_hostEnvironment.ContentRootPath,"Files", "Images", "Persons", "Pictures", fileName);
+            if (fileName == null || !System.IO.File.Exists(path))
+            {
+                return NotFound();
+            }
+            return PhysicalFile(path, "image/jpg");
         }
     }
 }

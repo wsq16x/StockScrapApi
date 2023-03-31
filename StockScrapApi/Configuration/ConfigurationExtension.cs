@@ -14,15 +14,16 @@ namespace StockScrapApi.Configuration
 {
     public static class ConfigurationExtension
     {
-        public static void ConfigureSeriLog(this IServiceCollection services)
+        public static void ConfigureSeriLog(this IServiceCollection services, WebApplicationBuilder builder)
         {
             Log.Logger = new LoggerConfiguration()
-            //.MinimumLevel.Override("Microsoft", LogEventLevel.Warning)
-            .WriteTo.Seq("http://localhost:5341")
-            //.WriteTo.File(path: ".logs\\log-.txt",
-            //      outputTemplate: "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz}[{Level:u3}]{Message:lj}{NewLine}{Exception}",
-            //      rollingInterval: RollingInterval.Day,
-            //      restrictedToMinimumLevel: LogEventLevel.Information)
+            .MinimumLevel.Override("Microsoft", LogEventLevel.Warning)
+            //.WriteTo.Seq("http://localhost:5341")
+            .WriteTo.File(path: Path.Combine(builder.Environment.ContentRootPath, "SeriLog", "Logs", "log-.txt"),
+                  outputTemplate: "{Timestamp:yyyy-MM-dd HH:mm:ss}[{Level:u3}]{Message:lj}{NewLine}{Exception}",
+                  rollingInterval: RollingInterval.Day,
+                  retainedFileCountLimit: 10,
+                  restrictedToMinimumLevel: LogEventLevel.Information)
             .CreateLogger();
         }
 

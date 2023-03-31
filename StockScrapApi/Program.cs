@@ -12,7 +12,7 @@ using StockScrapApi.Scraper;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.ConfigureSeriLog();
+builder.Services.ConfigureSeriLog(builder);
 
 //Db
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
@@ -63,7 +63,7 @@ app.UseSwagger();
 app.UseSwaggerUI(c =>
 {
     string swaggerJsonBasePath = string.IsNullOrWhiteSpace(c.RoutePrefix) ? "." : "..";
-    c.SwaggerEndpoint($"{swaggerJsonBasePath}/swagger/v1/swagger.json", "Hotel Listing API");
+    c.SwaggerEndpoint($"{swaggerJsonBasePath}/swagger/v1/swagger.json", "StockApi");
 });
 
 app.ConfigureExceptionHandler();

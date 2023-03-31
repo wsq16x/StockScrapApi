@@ -1,9 +1,6 @@
 ﻿using AutoMapper;
-using AutoMapper.QueryableExtensions;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Hosting;
 using StockScrapApi.Data;
 using StockScrapApi.Dtos;
 
@@ -47,21 +44,16 @@ namespace StockScrapApi.Controllers
         [Route("logo")]
         public async Task<IActionResult> GetCompanyLogoById(Guid Id)
         {
-            //var absPath = Path.Combine(_hostEnvironment.WebRootPath, "Images", "Companies", "logo");
-            var absPath = _hostEnvironment.ContentRootPath;
-            var path = await _context.companyLogos.Where(a => a.CompanyId == Id).Select(b => b.LogoPath).FirstOrDefaultAsync();
-            
-            if(path == null)
+            var fileName = await _context.companyLogos.Where(a => a.CompanyId == Id).Select(b => b.LogoPath).FirstOrDefaultAsync();
+            var path = Path.Combine(_hostEnvironment.ContentRootPath, "Files", "Images", "Companies", "Logos", fileName);
+
+            if (fileName == null || !System.IO.File.Exists(path))
             {
                 return NotFound();
             }
-
-                return File(Path.GetRelativePath(absPath, path), "image/jpg");
-
-            
-
-
+            return PhysicalFile(path, "image/jpg");
         }
+
         [HttpGet]
         [Route("Address")]
         public async Task<IActionResult> GetAllCompanyAdress()

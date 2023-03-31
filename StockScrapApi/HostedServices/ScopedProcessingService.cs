@@ -23,13 +23,12 @@ namespace StockScrapApi.HostedServices
             _backGroundJobClient = backgroundJobClient;
             _initialize = initialize;
         }
-        public Task EnqueueJob(CancellationToken stoppingToken)
+        public async Task EnqueueJob(CancellationToken stoppingToken)
         {
 
             //var jobId = _backGroundJobClient.Enqueue(() => _scraper.ScrapeAndPush());
-            RecurringJob.AddOrUpdate("scrapeData", () => _scraper.ScrapeAndPush(true, false), "0 * * * *");
+            RecurringJob.AddOrUpdate("scrapeData", () => _scraper.ScrapeAndPush(true, false), "0 17 * * *");
 
-            return Task.CompletedTask;
         }
         public async Task FetchFirebaseData(CancellationToken stoppingToken)
         {
