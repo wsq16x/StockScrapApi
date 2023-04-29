@@ -18,6 +18,7 @@ namespace StockScrapApi.Profiles
             CreateMap<ShareHoldingPerct, ShareHoldingPerctReadDto>();
             CreateMap<Company, CompanyReadDto>();
             CreateMap<PersonRawDTO, Person>();
+            CreateMap<Person, PersonDto>().ReverseMap();
         }
     }
 }
