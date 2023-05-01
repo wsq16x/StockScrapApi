@@ -23,5 +23,6 @@ namespace StockScrapApi.Models
         public string? ImageUrl{ get; set; }
         public Guid? CompanyId { get; set; }
         public Company? Company { get; set; }
+        public ProfilePicture? profilePicture { get; set; }
     }
 }

@@ -4,11 +4,11 @@ using Microsoft.Extensions.FileProviders;
 using Serilog;
 using StockScrapApi.Configuration;
 using StockScrapApi.Data;
-using StockScrapApi.Hangfire;
 using StockScrapApi.Helpers;
 using StockScrapApi.HostedServices;
 using StockScrapApi.Profiles;
 using StockScrapApi.Scraper;
+using Newtonsoft.Json;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -25,7 +25,8 @@ builder.Services.ConfigureHangfire(builder.Configuration);
 builder.Services.AddAutoMapper(typeof(MapperProfile));
 // Add services to the container.
 
-builder.Services.AddControllers();
+builder.Services.AddControllers().AddNewtonsoftJson(
+                 op => op.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore);
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
@@ -75,7 +76,7 @@ app.UseStaticFiles(new StaticFileOptions
 {
     FileProvider = new PhysicalFileProvider(
             Path.Combine(builder.Environment.ContentRootPath, "Files", "Images")),
-            RequestPath = "/Images"
+    RequestPath = "/Images"
 });
 
 app.UseAuthorization();
@@ -96,4 +97,3 @@ finally
 {
     Log.CloseAndFlush();
 }
-

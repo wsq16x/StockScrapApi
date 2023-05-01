@@ -15,7 +15,9 @@ namespace StockScrapApi.Dtos
         public string? Bio { get; set; }
         public string? Phone { get; set; }
         public string? Email { get; set; }
-        public Company? Company { get; set; }
-        public string? PicturePath { get; set; }
+        public Guid? CompanyId { get; set; }
+        public string? CompanyName { get; set; }
+        public string? CompanyCode { get; set; }
+        public string? ImageUrl { get; set; }
     }
 }

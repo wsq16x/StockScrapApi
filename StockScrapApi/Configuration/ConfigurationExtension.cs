@@ -18,7 +18,7 @@ namespace StockScrapApi.Configuration
         {
             Log.Logger = new LoggerConfiguration()
             .MinimumLevel.Override("Microsoft", LogEventLevel.Warning)
-            //.WriteTo.Seq("http://localhost:5341")
+            .WriteTo.Seq("http://localhost:5341")
             .WriteTo.File(path: Path.Combine(builder.Environment.ContentRootPath, "SeriLog", "Logs", "log-.txt"),
                   outputTemplate: "{Timestamp:yyyy-MM-dd HH:mm:ss}[{Level:u3}]{Message:lj}{NewLine}{Exception}",
                   rollingInterval: RollingInterval.Day,

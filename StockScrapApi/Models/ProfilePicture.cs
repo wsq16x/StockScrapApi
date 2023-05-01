@@ -15,6 +15,5 @@ namespace StockScrapApi.Models
         public Guid Id { get; set; }
         public string? ImagePath { get; set; }
         public Guid PersonId { get; set; }
-        public Person Person{ get; set; }
     }
 }

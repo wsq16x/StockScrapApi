@@ -3,6 +3,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using StockScrapApi.Data;
 using StockScrapApi.Dtos;
+using StockScrapApi.Models;
+using System.IO;
 
 namespace StockScrapApi.Controllers
 {
@@ -14,19 +16,35 @@ namespace StockScrapApi.Controllers
         private readonly IWebHostEnvironment _hostEnvironment;
         private readonly IMapper _mapper;
         private readonly IConfiguration _configuration;
+        private readonly ILogger<PersonController> _logger;
 
-        public PersonController(ApplicationDbContext context, IWebHostEnvironment hostEnvironment, IMapper mapper, IConfiguration configuration)
+        public PersonController(ApplicationDbContext context, IWebHostEnvironment hostEnvironment, IMapper mapper, IConfiguration configuration, ILogger<PersonController> logger)
         {
             _context = context;
             _hostEnvironment = hostEnvironment;
             _mapper = mapper;
             _configuration = configuration;
+            _logger = logger;
         }
 
         [HttpGet]
         public async Task<IActionResult> GetAllPersons()
         {
-            var result = await _context.persons.ToListAsync();
+            var baseUrl = _configuration.GetValue<string>("BaseUrl");
+            var directory = "/Images/Persons/Pictures/";
+            var result = await _context.persons.Include("Company").Include("profilePicture")
+                        .Select(a => new PersonDto {
+                            Id = a.Id,
+                            Name = a.Name,
+                            Bio = a.Bio,
+                            Phone = a.Phone,
+                            Email = a.Email,
+                            Designation = a.Designation,
+                            CompanyId = a.CompanyId,
+                            CompanyCode = a.Company.CompanyCode,
+                            CompanyName = a.Company.CompanyName,
+                            ImageUrl = a.profilePicture.ImagePath != null ? baseUrl + directory + a.profilePicture.ImagePath : null
+                        }).ToListAsync();
 
             return Ok(result);
         }
@@ -34,20 +52,26 @@ namespace StockScrapApi.Controllers
         [HttpGet("{Id:Guid}", Name = "GetPerson")]
         public async Task<IActionResult> GetPerson(Guid Id)
         {
-            var person = await _context.persons.Include(a => a.Company).Where(x => x.Id.Equals(Id)).FirstOrDefaultAsync();
+            var baseUrl = _configuration.GetValue<string>("BaseUrl");
+            var directory = "/Images/Persons/Pictures/";
+            var result = await _context.persons.Include("Company").Include("profilePicture").Where(a => a.Id == Id)
+            .Select(a => new PersonDto
+            {
+                Id = a.Id,
+                Name = a.Name,
+                Bio = a.Bio,
+                Phone = a.Phone,
+                Email = a.Email,
+                Designation = a.Designation,
+                CompanyId = a.CompanyId,
+                CompanyCode = a.Company.CompanyCode,
+                CompanyName = a.Company.CompanyName,
+                ImageUrl = a.profilePicture.ImagePath != null ? baseUrl + directory + a.profilePicture.ImagePath : null
+            }).FirstOrDefaultAsync();
 
-            if (person == null)
+            if (result == null)
             {
                 return NotFound();
-            }
-
-            var result = _mapper.Map<PersonDto>(person);
-
-            var imgPath = await _context.profilePictures.Where(x => x.PersonId.Equals(Id)).Select(a => a.ImagePath).FirstOrDefaultAsync();
-
-            if (imgPath != null)
-            {
-                result.PicturePath = String.Format(_configuration.GetValue<string>("BaseUrl"), "/Images/Persons/Pictures/", imgPath);
             }
 
             return Ok(result);
@@ -64,6 +88,69 @@ namespace StockScrapApi.Controllers
                 return NotFound();
             }
             return PhysicalFile(path, "image/jpg");
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> CreatePerson([FromBody]CreatePersonDto createPersonDto)
+        {
+            var person = _mapper.Map<Person>(createPersonDto);
+
+            if (createPersonDto.Picture != null)
+            {
+                var fileName = createPersonDto.Picture.FileName;
+                if (!fileName.EndsWith(".png") || !fileName.EndsWith(".jpg") || !fileName.EndsWith(".jpeg"))
+                {
+                    return BadRequest("Only .png, .jpg and .jpeg extension allowed.");
+                }
+
+                var directory = _hostEnvironment.ContentRootPath + "Files/Images/Persons/Pictures";
+                var generatedFileName = Guid.NewGuid().ToString() + createPersonDto.Picture.FileName;
+                _logger.LogInformation(fileName);
+
+            }
+
+
+            _context.Add(person);
+            //await _context.SaveChangesAsync();
+
+
+
+
+            return Ok(createPersonDto.Picture);
+
+        }
+
+        [HttpPost]
+        [Route("test")]
+        public async Task<IActionResult> CreatePersonForm([FromForm] CreatePersonDto createPersonDto)
+        {
+            var person = _mapper.Map<Person>(createPersonDto);
+            //_context.Add(person);
+            //await _context.SaveChangesAsync();
+
+            if(createPersonDto.Picture != null)
+            {
+                var fileName = createPersonDto.Picture.FileName;
+                _logger.LogInformation(fileName);
+                
+            }
+            
+            
+
+            return Ok(createPersonDto.Picture);
+        }
+
+        [HttpPut]
+        public async Task<IActionResult> EditPerson(Guid Id, [FromBody]CreatePersonDto createPersonDto)
+        {
+
+            return Ok();
+        }
+
+        [HttpDelete]
+        public async Task<IActionResult> DeletePerson()
+        {
+            return Ok();
         }
     }
 }
