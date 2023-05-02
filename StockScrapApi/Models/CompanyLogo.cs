@@ -15,6 +15,6 @@ namespace StockScrapApi.Models
         public Guid Id { get; set; }
         public string? LogoPath { get; set; }
         public Guid CompanyId { get; set; }
-        public Company Company { get; set; }
+        //public Company Company { get; set; }
     }
 }

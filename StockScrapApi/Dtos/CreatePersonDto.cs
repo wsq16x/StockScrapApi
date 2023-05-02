@@ -12,4 +12,10 @@ namespace StockScrapApi.Dtos
         public Guid CompanyId { get; set; }
         public IFormFile? Picture { get; set; }
     }
+
+    public class EditPersonDto : CreatePersonDto
+    { 
+        public Guid Id { get; set; }
+    }
+
 }

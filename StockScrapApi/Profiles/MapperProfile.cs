@@ -20,6 +20,7 @@ namespace StockScrapApi.Profiles
             CreateMap<PersonRawDTO, Person>();
             CreateMap<Person, PersonDto>().ReverseMap();
             CreateMap<CreatePersonDto, Person>();
+            CreateMap<EditPersonDto, Person>();
         }
     }
 }

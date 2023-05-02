@@ -25,6 +25,6 @@ namespace StockScrapApi.Models
         public DateTime TimeStamp { get; set; }
 
         public Guid CompanyId { get; set; }
-        public Company Company { get; set; }
+        //public Company Company { get; set; }
     }
 }

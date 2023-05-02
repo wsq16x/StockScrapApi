@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using StockScrapApi.Data;
 using StockScrapApi.Dtos;
 
@@ -14,19 +15,34 @@ namespace StockScrapApi.Controllers
         private readonly ILogger<CompanyController> _logger;
         private readonly IMapper _mapper;
         private readonly IWebHostEnvironment _hostEnvironment;
+        private readonly IConfiguration _configuration;
 
-        public CompanyController(ApplicationDbContext context, ILogger<CompanyController> logger, IMapper mapper, IWebHostEnvironment hostEnvironment)
+        public CompanyController(ApplicationDbContext context, ILogger<CompanyController> logger, IMapper mapper, IWebHostEnvironment hostEnvironment, IConfiguration configuration)
         {
             _context = context;
             _logger = logger;
             _mapper = mapper;
             _hostEnvironment = hostEnvironment;
+            _configuration = configuration;
         }
 
         [HttpGet]
         public async Task<IActionResult> GetAllCompany()
         {
-            var results = await _context.companies.ToListAsync();
+            var baseUrl = _configuration.GetValue<string>("BaseUrl");
+            var directory = "/Images/Companies/Logos/";
+
+            var dsebdUrl = _configuration.GetValue<string>("DsebdUrl");
+            var results = await _context.companies.Include("CompanyLogo")
+                .Select(x => new CompanyListDto
+                {
+                    Id= x.Id,
+                    CompanyName= x.CompanyName,
+                    CompanyCode = x.CompanyCode,
+                    ScripCode= x.ScripCode,
+                    Url= dsebdUrl + x.Url,
+                    LogoUrl = x.CompanyLogo != null ? baseUrl + directory + x.CompanyLogo.LogoPath: null
+                }).ToListAsync();
 
             return Ok(results);
         }
@@ -38,6 +54,37 @@ namespace StockScrapApi.Controllers
             var results = await _mapper.ProjectTo<CompanyReadDto>(_context.companies).ToListAsync();
 
             return Ok(results);
+        }
+
+        [HttpGet("{Id:Guid}", Name = "GetCompany")]
+        public async Task<IActionResult> GetCompany(Guid Id)
+        {
+            var baseUrl = _configuration.GetValue<string>("BaseUrl");
+            var directory = "/Images/Companies/Logos/";
+
+            var dsebdUrl = _configuration.GetValue<string>("DsebdUrl");
+
+            var result = await _context.companies.Include("CompanyAddress").Include("BasicInfo").Include("OtherInfo").Include("CompanyLogo")
+                .Select(a => new CompanyReadDto
+                {
+                    Id = a.Id,
+                    CompanyName = a.CompanyName,
+                    CompanyCode= a.CompanyCode,
+                    ScripCode = a.ScripCode,
+                    Url = dsebdUrl + a.Url,
+                    BasicInfo = a.BasicInfo,
+                    CompanyAddress = a.CompanyAddress,
+                    OtherInfo = a.OtherInfo,
+                    LogoUrl = a.CompanyLogo != null ? baseUrl + directory + a.CompanyLogo.LogoPath : null
+
+                }).FirstOrDefaultAsync();
+
+            if(result == null)
+            {
+                return NotFound();
+            }
+
+            return Ok(result);
         }
 
         [HttpGet]

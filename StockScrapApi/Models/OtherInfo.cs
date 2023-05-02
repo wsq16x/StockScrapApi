@@ -19,6 +19,6 @@ namespace StockScrapApi.Models
         public string? Remarks { get; set; }
 
         public Guid CompanyId { get; set; }
-        public Company Company { get; set; }
+        //public Company Company { get; set; }
     }
 }

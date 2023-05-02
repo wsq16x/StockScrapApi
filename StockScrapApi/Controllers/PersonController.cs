@@ -1,10 +1,13 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using StockScrapApi.Data;
 using StockScrapApi.Dtos;
 using StockScrapApi.Models;
+using System.Diagnostics;
 using System.IO;
+using System.Text.Json;
 
 namespace StockScrapApi.Controllers
 {
@@ -30,8 +33,12 @@ namespace StockScrapApi.Controllers
         [HttpGet]
         public async Task<IActionResult> GetAllPersons()
         {
+            var watch = new Stopwatch();
             var baseUrl = _configuration.GetValue<string>("BaseUrl");
             var directory = "/Images/Persons/Pictures/";
+
+            watch.Start();
+
             var result = await _context.persons.Include("Company").Include("profilePicture")
                         .Select(a => new PersonDto {
                             Id = a.Id,
@@ -43,9 +50,11 @@ namespace StockScrapApi.Controllers
                             CompanyId = a.CompanyId,
                             CompanyCode = a.Company.CompanyCode,
                             CompanyName = a.Company.CompanyName,
-                            ImageUrl = a.profilePicture.ImagePath != null ? baseUrl + directory + a.profilePicture.ImagePath : null
+                            ImageUrl = a.profilePicture != null ? baseUrl + directory + a.profilePicture.ImagePath : null
                         }).ToListAsync();
-
+            watch.Stop();
+            _logger.LogInformation("Took {0}", watch.ElapsedMilliseconds);
+            Console.Write(JsonSerializer.Serialize(result));
             return Ok(result);
         }
 
@@ -91,64 +100,163 @@ namespace StockScrapApi.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> CreatePerson([FromBody]CreatePersonDto createPersonDto)
+        public async Task<IActionResult> CreatePerson([FromForm]CreatePersonDto createPersonDto)
         {
             var person = _mapper.Map<Person>(createPersonDto);
-
+            var ContentTypes = new List<string> { "image/png", "image/jpeg"};
+            string? imagePath = null;
+            string? fullImagePath = null;
             if (createPersonDto.Picture != null)
-            {
+            { 
                 var fileName = createPersonDto.Picture.FileName;
-                if (!fileName.EndsWith(".png") || !fileName.EndsWith(".jpg") || !fileName.EndsWith(".jpeg"))
+                if (!ContentTypes.Contains(createPersonDto.Picture.ContentType))
                 {
                     return BadRequest("Only .png, .jpg and .jpeg extension allowed.");
                 }
 
                 var directory = _hostEnvironment.ContentRootPath + "Files/Images/Persons/Pictures";
-                var generatedFileName = Guid.NewGuid().ToString() + createPersonDto.Picture.FileName;
-                _logger.LogInformation(fileName);
+                var GeneratedfileName = Guid.NewGuid().ToString() + Path.GetExtension(fileName);
 
-            }
-
-
-            _context.Add(person);
-            //await _context.SaveChangesAsync();
-
-
-
-
-            return Ok(createPersonDto.Picture);
-
-        }
-
-        [HttpPost]
-        [Route("test")]
-        public async Task<IActionResult> CreatePersonForm([FromForm] CreatePersonDto createPersonDto)
-        {
-            var person = _mapper.Map<Person>(createPersonDto);
-            //_context.Add(person);
-            //await _context.SaveChangesAsync();
-
-            if(createPersonDto.Picture != null)
-            {
-                var fileName = createPersonDto.Picture.FileName;
-                _logger.LogInformation(fileName);
+                var filePath = Path.Combine(directory, GeneratedfileName);
                 
-            }
-            
-            
+                using (var stream = System.IO.File.Create(filePath))
+                {
+                    await createPersonDto.Picture.CopyToAsync(stream);
+                }
 
-            return Ok(createPersonDto.Picture);
+                imagePath = GeneratedfileName;
+
+                _logger.LogInformation("Image saved at '{0}'", filePath);
+
+            }
+
+            try
+            {
+                _context.Add(person);
+                await _context.SaveChangesAsync();
+
+                if(createPersonDto.Picture != null)
+                {
+                    var profilePic = new ProfilePicture
+                    {
+                        PersonId = person.Id,
+                        ImagePath = imagePath
+                    };
+
+                    _context.Add(profilePic);
+                    await _context.SaveChangesAsync();
+                }
+
+            }
+            catch (Exception ex)
+            {
+                
+                _logger.LogError(ex, "Error occured adding person.", ex.Message);
+                if (fullImagePath != null)
+                {
+                    System.IO.File.Delete(fullImagePath);
+                }
+
+                return StatusCode(StatusCodes.Status500InternalServerError, "Failed. Please try again.");
+            }
+
+
+
+            return Ok(person.Id);
+
         }
+
 
         [HttpPut]
-        public async Task<IActionResult> EditPerson(Guid Id, [FromBody]CreatePersonDto createPersonDto)
+        public async Task<IActionResult> EditPerson(Guid Id, [FromForm]EditPersonDto editPersonDto)
         {
 
-            return Ok();
+            if (!_context.persons.Where(x => x.Id == Id).Any() && Id == editPersonDto.Id)
+            {
+                return NotFound();
+            }
+
+            var person = _mapper.Map<Person>(editPersonDto);
+            var ContentTypes = new List<string> { "image/png", "image/jpeg" };
+            string? imagePath = null;
+            string? fullImagePath = null;
+
+            if (editPersonDto.Picture != null)
+            {
+                if (!ContentTypes.Contains(editPersonDto.Picture.ContentType))
+                {
+                    return BadRequest("Only .png, .jpg and .jpeg extension allowed.");
+                }
+
+                var directory = _hostEnvironment.ContentRootPath + "Files/Images/Persons/Pictures";
+
+                var existingImage = await _context.profilePictures.Where(x => x.PersonId == editPersonDto.Id).Select(x => x.ImagePath).FirstOrDefaultAsync();
+                if (existingImage != null)
+                {
+                    System.IO.File.Delete(Path.Combine(directory, existingImage));
+                }
+
+                var fileName = editPersonDto.Picture.FileName;
+
+                var GeneratedfileName = Guid.NewGuid().ToString() + Path.GetExtension(fileName);
+
+                var filePath = Path.Combine(directory, GeneratedfileName);
+
+                using (var stream = System.IO.File.Create(filePath))
+                {
+                    await editPersonDto.Picture.CopyToAsync(stream);
+                }
+
+                imagePath = GeneratedfileName;
+
+                _logger.LogInformation("Image saved at '{0}'", filePath);
+            }
+
+
+            try
+            {
+                _context.Update(person);
+
+                if (editPersonDto.Picture != null)
+                {
+                    var profilePicture = await _context.profilePictures.Where(x => x.PersonId == person.Id).FirstOrDefaultAsync();
+                    if (profilePicture != null)
+                    {
+                       profilePicture.ImagePath = imagePath;
+
+                        _context.Update(profilePicture);
+                    }
+                    else
+                    {
+                        var profilePic = new ProfilePicture
+                        {
+                            PersonId = person.Id,
+                            ImagePath = imagePath
+                        };
+
+                        _context.Add(profilePic);
+                    }
+
+                }
+                await _context.SaveChangesAsync();
+            }
+            catch (Exception ex)
+            {
+
+                _logger.LogError(ex, "Error occured adding person.", ex.Message);
+                if (fullImagePath != null)
+                {
+                    System.IO.File.Delete(fullImagePath);
+                }
+
+                return StatusCode(StatusCodes.Status500InternalServerError, "Failed. Please try again.");
+            }
+
+            return CreatedAtRoute("GetPerson", new {id = person.Id}, person);
         }
 
         [HttpDelete]
-        public async Task<IActionResult> DeletePerson()
+        public async Task<IActionResult> DeletePerson(Guid Id)
         {
             return Ok();
         }
