@@ -54,8 +54,14 @@ namespace StockScrapApi.Controllers
                         }).ToListAsync();
             watch.Stop();
             _logger.LogInformation("Took {0}", watch.ElapsedMilliseconds);
-            Console.Write(JsonSerializer.Serialize(result));
             return Ok(result);
+        }
+
+        [HttpGet]
+        [Route("GetPersonsPaged")]
+        public async Task<IActionResult> GetPersons(int? page, int? count)
+        {
+            return Ok();
         }
 
         [HttpGet("{Id:Guid}", Name = "GetPerson")]

@@ -28,7 +28,7 @@ namespace StockScrapApi.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetAllCompany()
+        public async Task<IActionResult> GetCompanies()
         {
             var baseUrl = _configuration.GetValue<string>("BaseUrl");
             var directory = "/Images/Companies/Logos/";
@@ -37,16 +37,17 @@ namespace StockScrapApi.Controllers
             var results = await _context.companies.Include("CompanyLogo")
                 .Select(x => new CompanyListDto
                 {
-                    Id= x.Id,
-                    CompanyName= x.CompanyName,
+                    Id = x.Id,
+                    CompanyName = x.CompanyName,
                     CompanyCode = x.CompanyCode,
-                    ScripCode= x.ScripCode,
-                    Url= dsebdUrl + x.Url,
-                    LogoUrl = x.CompanyLogo != null ? baseUrl + directory + x.CompanyLogo.LogoPath: null
+                    ScripCode = x.ScripCode,
+                    Url = dsebdUrl + x.Url,
+                    LogoUrl = x.CompanyLogo != null ? baseUrl + directory + x.CompanyLogo.LogoPath : null
                 }).ToListAsync();
 
             return Ok(results);
         }
+
 
         [HttpGet]
         [Route("GetCompaniesWithInfo")]
@@ -71,7 +72,7 @@ namespace StockScrapApi.Controllers
                 {
                     Id = a.Id,
                     CompanyName = a.CompanyName,
-                    CompanyCode= a.CompanyCode,
+                    CompanyCode = a.CompanyCode,
                     ScripCode = a.ScripCode,
                     Url = dsebdUrl + a.Url,
                     BasicInfo = a.BasicInfo,
@@ -88,7 +89,7 @@ namespace StockScrapApi.Controllers
 
                 }).FirstOrDefaultAsync();
 
-            if(result == null)
+            if (result == null)
             {
                 return NotFound();
             }

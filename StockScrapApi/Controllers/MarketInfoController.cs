@@ -27,5 +27,14 @@ namespace StockScrapApi.Controllers
             var marketInfo = await _context.marketInfo.ToListAsync();
             return Ok(marketInfo);
         }
+
+        [HttpGet]
+        public async Task<IActionResult> GetMarketInfo(Guid Id, DateTime date)
+        {
+            var result = await _context.marketInfo.Where(x => x.CompanyId == Id && x.TimeStamp == date).FirstOrDefaultAsync();
+            return Ok(result);
+        }
+
+        
     }
 }
