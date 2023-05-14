@@ -21,6 +21,7 @@ namespace StockScrapApi.Models
         public OtherInfo? OtherInfo { get; set; }
         public CompanyLogo? CompanyLogo { get; set; }
         public BasicInfo? BasicInfo { get; set; }
+        public List<Person>? Persons { get; set; }
         
 
     }

@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 using Microsoft.Extensions.Configuration;
 using StockScrapApi.Data;
 using StockScrapApi.Dtos;
@@ -61,10 +62,11 @@ namespace StockScrapApi.Controllers
         {
             var baseUrl = _configuration.GetValue<string>("BaseUrl");
             var directory = "/Images/Companies/Logos/";
+            var directoryPerson = "/Images/Persons/Pictures/";
 
             var dsebdUrl = _configuration.GetValue<string>("DsebdUrl");
 
-            var result = await _context.companies.Include("CompanyAddress").Include("BasicInfo").Include("OtherInfo").Include("CompanyLogo")
+            var result = await _context.companies.Where(x => x.Id == Id).Include("CompanyAddress").Include("BasicInfo").Include("OtherInfo").Include("CompanyLogo").Include("Persons")
                 .Select(a => new CompanyReadDto
                 {
                     Id = a.Id,
@@ -75,7 +77,14 @@ namespace StockScrapApi.Controllers
                     BasicInfo = a.BasicInfo,
                     CompanyAddress = a.CompanyAddress,
                     OtherInfo = a.OtherInfo,
-                    LogoUrl = a.CompanyLogo != null ? baseUrl + directory + a.CompanyLogo.LogoPath : null
+                    LogoUrl = a.CompanyLogo != null ? baseUrl + directory + a.CompanyLogo.LogoPath : null,
+                    Persons = a.Persons.Select(p => new PersonInclude
+                    {
+                        Id=p.Id,
+                        Name = p.Name,
+                        Designation = p.Designation,
+                        ImageUrl = p.profilePicture != null ? baseUrl + directoryPerson + p.profilePicture.ImagePath : null
+                    }).ToList()
 
                 }).FirstOrDefaultAsync();
 
