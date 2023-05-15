@@ -1,12 +1,17 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using StockScrapApi.Dtos;
 
 namespace StockScrapApi.Controllers
 {
-    public class AuthController : Controller
+    [Route("api/[controller]")]
+    [ApiController]
+    public class AuthController : ControllerBase
     {
-        public IActionResult Index()
+        [HttpPost]
+        public async Task<IActionResult> Login(LoginDto loginDto)
         {
-            return View();
+            return Ok();
         }
     }
 }

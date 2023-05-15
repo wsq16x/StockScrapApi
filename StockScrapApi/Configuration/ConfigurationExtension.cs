@@ -1,8 +1,10 @@
 ﻿using Hangfire;
 using Hangfire.SqlServer;
 using Microsoft.AspNetCore.Diagnostics;
+using Microsoft.AspNetCore.Identity;
 using Serilog;
 using Serilog.Events;
+using StockScrapApi.Data;
 using StockScrapApi.Models;
 using System;
 using System.Collections.Generic;
@@ -66,6 +68,14 @@ namespace StockScrapApi.Configuration
 
             services.AddHangfireServer();
 
+        }
+
+        public static void ConfigureIdentity(this IServiceCollection services, IConfiguration configuration)
+        {
+
+            var builder = services.AddIdentityCore<User>(q => q.User.RequireUniqueEmail = true);
+            builder = new IdentityBuilder(builder.UserType, typeof(IdentityRole), services);
+            builder.AddEntityFrameworkStores<ApplicationDbContext>().AddDefaultTokenProviders();
         }
     }
 
