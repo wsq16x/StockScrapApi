@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -105,6 +106,7 @@ namespace StockScrapApi.Controllers
             return PhysicalFile(path, "image/jpg");
         }
 
+        [Authorize(Roles = "Admin,SuperUser")]
         [HttpPost]
         public async Task<IActionResult> CreatePerson([FromForm]CreatePersonDto createPersonDto)
         {
@@ -172,7 +174,7 @@ namespace StockScrapApi.Controllers
 
         }
 
-
+        [Authorize(Roles = "Admin,SuperUser")]
         [HttpPut]
         public async Task<IActionResult> EditPerson(Guid Id, [FromForm]EditPersonDto editPersonDto)
         {

@@ -9,6 +9,7 @@ using StockScrapApi.HostedServices;
 using StockScrapApi.Profiles;
 using StockScrapApi.Scraper;
 using Newtonsoft.Json;
+using StockScrapApi.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -25,6 +26,13 @@ builder.Services.ConfigureHangfire(builder.Configuration);
 builder.Services.AddAutoMapper(typeof(MapperProfile));
 // Add services to the container.
 
+//Auth and JWT
+//Add Identity
+builder.Services.AddAuthentication();
+builder.Services.ConfigureIdentity();
+
+builder.Services.ConfigureJWT(builder.Configuration);
+
 builder.Services.AddControllers().AddNewtonsoftJson(
                  op => op.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore);
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
@@ -37,6 +45,7 @@ builder.Services.AddTransient<IMapFirebaseData, MapFirebaseData>();
 builder.Services.AddTransient<IInitialize, Initialize>();
 builder.Services.AddHostedService<ConsumeService>();
 builder.Services.AddScoped<IScopedProcessingService, ScopedProcessingService>();
+builder.Services.AddScoped<IAuthManager, AuthManager>();
 //builder.Services.AddTransient<IHangfireJob, HangfireJob>();
 
 //add CORS and configure CORS
@@ -79,6 +88,7 @@ app.UseStaticFiles(new StaticFileOptions
     RequestPath = "/Images"
 });
 
+app.UseAuthentication();
 app.UseAuthorization();
 app.UseEndpoints(opt => opt.MapHangfireDashboard("/hangfire"));
 app.UseHttpsRedirection();

@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace StockScrapApi.Models
 {
-    public class User : IdentityUser
+    public class ApiUser : IdentityUser
     {
         
         public string? FirstName { get; set; }

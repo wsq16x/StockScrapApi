@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using StockScrapApi.Data;
 
@@ -11,9 +12,11 @@ using StockScrapApi.Data;
 namespace StockScrapApi.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20230516044449_ConfiguredIdentity")]
+    partial class ConfiguredIdentity
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -47,29 +50,6 @@ namespace StockScrapApi.Migrations
                         .HasFilter("[NormalizedName] IS NOT NULL");
 
                     b.ToTable("AspNetRoles", (string)null);
-
-                    b.HasData(
-                        new
-                        {
-                            Id = "b48b9631-a27b-4baf-aff5-aac88efbb764",
-                            ConcurrencyStamp = "9ec822a7-6b2e-4abf-bb60-edd317f830eb",
-                            Name = "SuperUser",
-                            NormalizedName = "SUPERUSER"
-                        },
-                        new
-                        {
-                            Id = "88169827-93ca-48a9-9ba4-f8ae98597181",
-                            ConcurrencyStamp = "4aedf59c-5082-4abf-bf4e-b19e4063e89e",
-                            Name = "Administrator",
-                            NormalizedName = "ADMINISTRATOR"
-                        },
-                        new
-                        {
-                            Id = "fb7f520d-4bcd-409a-a32b-2bf45d250428",
-                            ConcurrencyStamp = "e3ee31ed-5d59-4f98-a343-890c66a7101d",
-                            Name = "Employee",
-                            NormalizedName = "EMPLOYEE"
-                        });
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>

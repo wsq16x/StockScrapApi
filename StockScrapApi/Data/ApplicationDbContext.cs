@@ -1,5 +1,7 @@
 ﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using StockScrapApi.Configuration;
 using StockScrapApi.Models;
 using System;
 using System.Collections.Generic;
@@ -9,9 +11,9 @@ using System.Threading.Tasks;
 
 namespace StockScrapApi.Data
 {
-    public class ApplicationDbContext : IdentityDbContext<User>
+    public class ApplicationDbContext : IdentityDbContext<ApiUser>
     {
-        public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
+        public ApplicationDbContext(DbContextOptions options) : base(options)
         {
 
         }
@@ -29,5 +31,13 @@ namespace StockScrapApi.Data
         public DbSet<CompanyFirebase> companiesFirebase { get; set; }
         public DbSet<PersonFirebase> personsFirebase { get; set; }
         public DbSet<ProfilePicture> profilePictures { get; set; }
+
+        protected override void OnModelCreating(ModelBuilder builder)
+        {
+            base.OnModelCreating(builder);
+
+            builder.ApplyConfiguration(new RoleConfiguration());
+
+        }
     }
 }
