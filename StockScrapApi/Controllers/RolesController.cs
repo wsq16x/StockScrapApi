@@ -22,6 +22,10 @@ namespace StockScrapApi.Controllers
         public async Task<IActionResult> GetRoles()
         {
             var result = await _context.Roles.Select(x => x.Name).ToListAsync();
+            if(result == null)
+            {
+                return NotFound();
+            }
             return Ok(result);
         }
     }
