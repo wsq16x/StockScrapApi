@@ -10,6 +10,8 @@ using StockScrapApi.Profiles;
 using StockScrapApi.Scraper;
 using Newtonsoft.Json;
 using StockScrapApi.Services;
+using Microsoft.AspNetCore.Identity;
+using StockScrapApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -31,6 +33,8 @@ builder.Services.AddAutoMapper(typeof(MapperProfile));
 builder.Services.AddAuthentication();
 builder.Services.ConfigureIdentity();
 builder.Services.ConfigureAuthorization();
+
+
 
 builder.Services.ConfigureJWT(builder.Configuration);
 
@@ -62,6 +66,9 @@ builder.Services.AddCors(f =>
 builder.Host.UseSerilog();
 
 var app = builder.Build();
+
+await app.ConfigureSuperUser();
+
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
