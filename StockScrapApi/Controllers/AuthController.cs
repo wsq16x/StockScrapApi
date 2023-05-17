@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -26,6 +27,7 @@ namespace StockScrapApi.Controllers
             _context = context;
         }
 
+        [AllowAnonymous]
         [HttpPost]
         [Route("login")]
         public async Task<IActionResult> Login(LoginDto loginDto)
@@ -45,6 +47,7 @@ namespace StockScrapApi.Controllers
             return Accepted(new { Token = await _authManager.CreateToken() });
         }
 
+        [Authorize(Roles = "Admin,SuperUser")]
         [HttpPost]
         [Route("register")]
         public async Task<IActionResult> Register(RegisterUserDto registerUserDto)

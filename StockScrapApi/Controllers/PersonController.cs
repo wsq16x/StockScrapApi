@@ -263,10 +263,11 @@ namespace StockScrapApi.Controllers
             return CreatedAtRoute("GetPerson", new {id = person.Id}, person);
         }
 
+        [Authorize(Roles = "Admin,SuperUser")]
         [HttpDelete]
         public async Task<IActionResult> DeletePerson(Guid Id)
         {
-            return Ok();
+            return Ok("This is not implemented yet to prevent deletation of historical data.");
         }
     }
 }

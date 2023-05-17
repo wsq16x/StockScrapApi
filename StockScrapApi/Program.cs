@@ -30,6 +30,7 @@ builder.Services.AddAutoMapper(typeof(MapperProfile));
 //Add Identity
 builder.Services.AddAuthentication();
 builder.Services.ConfigureIdentity();
+builder.Services.ConfigureAuthorization();
 
 builder.Services.ConfigureJWT(builder.Configuration);
 
@@ -81,18 +82,24 @@ app.UseHangfireDashboard();
 app.UseRouting();
 app.UseCors("AllowAll");
 
+app.UseHttpsRedirection();
+app.UseStaticFiles();
+
+
+app.UseAuthentication();
+app.UseAuthorization();
+app.UseEndpoints(opt => opt.MapHangfireDashboard("/hangfire"));
+
+
+
 app.UseStaticFiles(new StaticFileOptions
 {
     FileProvider = new PhysicalFileProvider(
             Path.Combine(builder.Environment.ContentRootPath, "Files", "Images")),
     RequestPath = "/Images"
 });
-
-app.UseAuthentication();
-app.UseAuthorization();
-app.UseEndpoints(opt => opt.MapHangfireDashboard("/hangfire"));
-app.UseHttpsRedirection();
 app.MapControllers();
+
 
 try
 {

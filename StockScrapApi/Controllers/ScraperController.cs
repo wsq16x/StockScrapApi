@@ -1,4 +1,5 @@
 ﻿using Hangfire;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using StockScrapApi.Helpers;
@@ -21,6 +22,7 @@ namespace StockScrapApi.Controllers
             _mapFirebaseData = mapFirebaseData;
         }
 
+        [Authorize(Roles = "SuperUser")]
         [HttpPost]
         public async Task<IActionResult> RunScraper()
         {
@@ -28,6 +30,7 @@ namespace StockScrapApi.Controllers
             return Ok(string.Format("Job Created with Id {0}", JobId));
         }
 
+        [Authorize(Roles = "SuperUser")]
         [Route("/FetchCompanyLogos")]
         [HttpPost]
         public async Task<IActionResult> FetchCompanyLogos()
@@ -36,6 +39,7 @@ namespace StockScrapApi.Controllers
             return Ok(string.Format("Job Created with Id {0}", JobId));
         }
 
+        [Authorize(Roles = "SuperUser")]
         [Route("/FetchPersonPhotos")]
         [HttpPost]
         public async Task<IActionResult> FetchPersonPhotos()
