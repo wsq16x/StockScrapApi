@@ -1,11 +1,13 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 using Microsoft.Extensions.Configuration;
 using StockScrapApi.Data;
 using StockScrapApi.Dtos;
+using StockScrapApi.Models;
 
 namespace StockScrapApi.Controllers
 {
@@ -110,6 +112,112 @@ namespace StockScrapApi.Controllers
                 return NotFound();
             }
             return PhysicalFile(path, "image/jpg");
+        }
+
+        [HttpPost]
+        [Route("logo")]
+        public async Task<IActionResult> AddCompanyLogo([FromForm] CompanyLogoDto companyLogoDto)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+
+
+            var ContentTypes = new List<string> { "image/png", "image/jpeg" };
+            string? imagePath = null;
+            string? fullImagePath = null;
+
+            if (companyLogoDto.Logo != null)
+            {
+                var fileName = companyLogoDto.Logo.FileName;
+                if (!ContentTypes.Contains(companyLogoDto.Logo.ContentType))
+                {
+                    return BadRequest("Only .png, .jpg and .jpeg extension allowed.");
+                }
+
+                var directory = _hostEnvironment.ContentRootPath + "Files/Images/Companies/Logos";
+                var GeneratedfileName = Guid.NewGuid().ToString() + Path.GetExtension(fileName);
+
+                var filePath = Path.Combine(directory, GeneratedfileName);
+
+                using (var stream = System.IO.File.Create(filePath))
+                {
+                    await companyLogoDto.Logo.CopyToAsync(stream);
+                }
+
+                imagePath = GeneratedfileName;
+
+                _logger.LogInformation("Image saved at '{0}'", filePath);
+
+            }
+
+
+            var exisitingCompany = await _context.companyLogos.Where(x => x.CompanyId == companyLogoDto.Id).FirstOrDefaultAsync();
+            
+
+            if (exisitingCompany != null)
+            {
+                return BadRequest("Logo exists. Please delete first.");
+            }
+            
+            
+            var logo = new CompanyLogo
+            {
+                CompanyId = companyLogoDto.Id,
+                LogoPath = imagePath
+            };
+
+            try
+            {
+                _context.Add(logo);
+                await _context.SaveChangesAsync();
+            }
+            catch(Exception ex)
+            {
+                _logger.LogError(ex, "Error occured adding logo.", ex.Message);
+                if (fullImagePath != null)
+                {
+                    System.IO.File.Delete(fullImagePath);
+                }
+
+                return StatusCode(StatusCodes.Status500InternalServerError, "Failed. Please try again.");
+            }
+
+            return NoContent();
+
+        }
+
+        [HttpDelete]
+        [Route("logo")]
+        public async Task<IActionResult> DeleteLogo(Guid Id)
+        { 
+            var companyLogo = await _context.companyLogos.Where(x => x.CompanyId == Id).FirstOrDefaultAsync();
+
+            if (companyLogo == null)
+            {
+                return NotFound();
+            }
+
+            var directory = _hostEnvironment.ContentRootPath + "Files/Images/Companies/Logos";
+            var fileName = companyLogo.LogoPath;
+
+            var filePath = Path.Combine(directory, fileName);
+
+            try
+            {
+                _context.Remove(companyLogo);
+                await _context.SaveChangesAsync();
+            }
+            catch(Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, "Failed to delete logo. Please try again later.");
+            }
+
+            System.IO.File.Delete(filePath);
+
+            return NoContent();
         }
 
         [HttpGet]
