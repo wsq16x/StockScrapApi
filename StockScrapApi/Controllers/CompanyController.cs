@@ -114,6 +114,7 @@ namespace StockScrapApi.Controllers
             return PhysicalFile(path, "image/jpg");
         }
 
+        [Authorize(Roles = "Admin,SuperUser")]
         [HttpPost]
         [Route("logo")]
         public async Task<IActionResult> AddCompanyLogo([FromForm] CompanyLogoDto companyLogoDto)
@@ -189,6 +190,7 @@ namespace StockScrapApi.Controllers
 
         }
 
+        [Authorize(Roles = "Admin,SuperUser")]
         [HttpDelete]
         [Route("logo")]
         public async Task<IActionResult> DeleteLogo(Guid Id)

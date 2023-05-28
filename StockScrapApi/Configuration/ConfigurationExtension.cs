@@ -108,10 +108,7 @@ namespace StockScrapApi.Configuration
         
         public static void ConfigureAuthorization(this IServiceCollection services)
         {
-            services.AddAuthorization(options =>
-            {
-                options.FallbackPolicy = new AuthorizationPolicyBuilder().RequireAuthenticatedUser().Build();
-            });
+            services.AddAuthorization();
         }
     }
 

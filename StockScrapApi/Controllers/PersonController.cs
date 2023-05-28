@@ -267,7 +267,34 @@ namespace StockScrapApi.Controllers
         [HttpDelete]
         public async Task<IActionResult> DeletePerson(Guid Id)
         {
-            return Ok("This is not implemented yet to prevent deletation of historical data.");
+            var profilePic = await _context.profilePictures.Where(x =>x.PersonId == Id).FirstOrDefaultAsync();
+
+            if(profilePic != null && profilePic.ImagePath != null)
+            {
+                var directory = _hostEnvironment.ContentRootPath + "Files/Images/Persons/Pictures";
+                try
+                {
+                    System.IO.File.Delete(Path.Combine(directory, profilePic.ImagePath));
+                    _context.Remove(profilePic);
+                }
+                catch(Exception ex)
+                {
+                    _logger.LogError(ex, "Unable to delete image for {0}", Id);
+                }
+                await _context.SaveChangesAsync();
+
+
+            }
+
+            var person = await _context.persons.FindAsync(Id);
+
+            if(person != null)
+            {
+                _context.Remove(person);
+                await _context.SaveChangesAsync();
+            }
+
+            return Ok();
         }
     }
 }
