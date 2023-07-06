@@ -27,42 +27,62 @@ namespace StockScrapApi.Helpers
             {
                 List<PersonFirebase> persons = new List<PersonFirebase>();
 
-                JObject personsRaw = JObject.Parse(await new HttpClient().GetStringAsync("https://data-archive-27724-default-rtdb.asia-southeast1.firebasedatabase.app/persons.json"));
-                foreach (var ind in personsRaw)
+                try
                 {
-                    PersonFirebase person = JsonConvert.DeserializeObject<PersonFirebase>(ind.Value.ToString());
-                    person.email = person.email == "Email Not Found" ? null : person.email;
-                    person.email = person.email == "Phone Not Found" ? null : person.phone;
+                    JObject personsRaw = JObject.Parse(await new HttpClient().GetStringAsync("https://data-archive-27724-default-rtdb.asia-southeast1.firebasedatabase.app/persons.json"));
 
-                    if (person.CompanyId == null)
+                    foreach (var ind in personsRaw)
                     {
-                        _logger.LogInformation("Found null value for Person {0}", person.PersonId);
+                        PersonFirebase person = JsonConvert.DeserializeObject<PersonFirebase>(ind.Value.ToString());
+                        person.email = person.email == "Email Not Found" ? null : person.email;
+                        person.email = person.email == "Phone Not Found" ? null : person.phone;
+
+                        if (person.CompanyId == null)
+                        {
+                            _logger.LogInformation("Found null value for Person {0}", person.PersonId);
+                        }
+                        persons.Add(person);
                     }
-                    persons.Add(person);
+
+                    await _context.AddRangeAsync(persons);
+                }
+                catch(Exception ex)
+                {
+                    _logger.LogError(ex, "Failed to fetch person data from firebase!");
+                    return false;
                 }
 
-                await _context.AddRangeAsync(persons);
+
             }
 
             if (!_context.companiesFirebase.Any())
             {
-                JObject companyRaw = JObject.Parse(await new HttpClient().GetStringAsync("https://data-archive-27724-default-rtdb.asia-southeast1.firebasedatabase.app/companies.json"));
-
-                List<CompanyFirebase> companies = new List<CompanyFirebase>();
-                foreach (var ind in companyRaw)
+                try
                 {
-                    CompanyFirebase company = JsonConvert.DeserializeObject<CompanyFirebase>(ind.Value.ToString());
+                    JObject companyRaw = JObject.Parse(await new HttpClient().GetStringAsync("https://data-archive-27724-default-rtdb.asia-southeast1.firebasedatabase.app/companies.json"));
 
-                    if (company.companyID == null)
+                    List<CompanyFirebase> companies = new List<CompanyFirebase>();
+                    foreach (var ind in companyRaw)
                     {
-                        _logger.LogInformation("Found null value for company {0}", company.tradingCode);
+                        CompanyFirebase company = JsonConvert.DeserializeObject<CompanyFirebase>(ind.Value.ToString());
+
+                        if (company.companyID == null)
+                        {
+                            _logger.LogInformation("Found null value for company {0}", company.tradingCode);
+                        }
+                        else
+                        {
+                            companies.Add(company);
+                        }
                     }
-                    else
-                    {
-                        companies.Add(company);
-                    }
+                    await _context.AddRangeAsync(companies);
                 }
-                await _context.AddRangeAsync(companies);
+                catch(Exception ex)
+                {
+                    _logger.LogError(ex, "Failed to fetch Company data from firebase!");
+                    return false;
+                }
+
             }
             try
             {
