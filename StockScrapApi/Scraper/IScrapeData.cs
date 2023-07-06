@@ -14,6 +14,8 @@ namespace StockScrapApi.Scraper
     {
         TableWithHead GetTables(string rootUrl, string url);
         List<compData> GetCompanyLinks();
+        List<compData> GetAtbLinks();
+        List<compData> GetSmeLinks();
         BasicInfo GetBasicInfo(TableWithHead allTables);
         CompanyTypeDto GetCompanyDetails(TableWithHead allTables);
         MarketInfo GetMarketInfo(TableWithHead allTables);

@@ -279,6 +279,83 @@ namespace StockScrapApi.Scraper
             return companyTypeDto;
         }
 
+        public List<compData> GetAtbLinks()
+        {
+            var root = @"https://atb.dsebd.org/mkt_depth_3.php";
+            var baseUrl = @"https://atb.dsebd.org/displayCompany.php?name=";
+
+            HtmlWeb web = new HtmlWeb();
+
+            var doc = web.Load(root);
+
+            string elementName = "inst";
+            HtmlNode node = doc.DocumentNode.SelectSingleNode($"//*[@name='{elementName}']");
+
+            var dropdown = new List<string>();
+
+            if (node != null)
+            {
+                var items = node.SelectNodes($"//option");
+                foreach (var item in items)
+                {
+                    dropdown.Add(item.GetAttributeValue("value", "").Trim());
+                }
+
+                dropdown = dropdown.Where(x => x != "0").ToList();
+            }
+            else
+            {
+                Console.WriteLine("Oops! nothing found.");
+            }
+
+            var atbLinks = new List<compData>();
+
+            foreach (var item in dropdown)
+            {
+                atbLinks.Add(new compData { Link = baseUrl + item, CompName = item });
+            }
+
+            return atbLinks;
+        }
+
+        public List<compData> GetSmeLinks()
+        {
+            var root = @"https://sme.dsebd.org/sme_mkt_depth_3.php";
+            var baseUrl = @"https://sme.dsebd.org/sme_displayCompany.php?name=";
+
+            HtmlWeb web = new HtmlWeb();
+
+            var doc = web.Load(root);
+
+            string elementName = "inst";
+            HtmlNode node = doc.DocumentNode.SelectSingleNode($"//*[@name='{elementName}']");
+
+            var dropdown = new List<string>();
+
+            if (node != null)
+            {
+                var items = node.SelectNodes($"//option");
+                foreach (var item in items)
+                {
+                    dropdown.Add(item.GetAttributeValue("value", "").Trim());
+                }
+
+                dropdown = dropdown.Where(x => x != "0").ToList();
+            }
+            else
+            {
+                Console.WriteLine("Oops! nothing found.");
+            }
+
+            var smeLinks = new List<compData>();
+
+            foreach (var item in dropdown)
+            {
+                smeLinks.Add(new compData { Link = baseUrl + item, CompName = item });
+            }
+
+            return smeLinks;
+        }
 
     }
 }

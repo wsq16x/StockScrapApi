@@ -17,6 +17,7 @@ namespace StockScrapApi.Models
         public string CompanyCode { get; set; }
         public string ScripCode { get; set; }
         public string Url { get; set; }
+        public string? Type { get; set; }
         public CompanyAddress? CompanyAddress { get; set; }
         public OtherInfo? OtherInfo { get; set; }
         public CompanyLogo? CompanyLogo { get; set; }
