@@ -21,7 +21,9 @@ namespace StockScrapApi.HostedServices
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
             await FetchFirebaseData(stoppingToken);
-            await EnqueueJob(stoppingToken);
+            
+            //disabled for testing purpose!
+            //await EnqueueJob(stoppingToken);
         }
 
         private async Task FetchFirebaseData(CancellationToken stoppingToken)

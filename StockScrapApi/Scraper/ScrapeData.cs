@@ -282,7 +282,7 @@ namespace StockScrapApi.Scraper
         public List<compData> GetAtbLinks()
         {
             var root = @"https://atb.dsebd.org/mkt_depth_3.php";
-            var baseUrl = @"https://atb.dsebd.org/displayCompany.php?name=";
+            var baseUrl = @"displayCompany.php?name=";
 
             HtmlWeb web = new HtmlWeb();
 
@@ -321,7 +321,7 @@ namespace StockScrapApi.Scraper
         public List<compData> GetSmeLinks()
         {
             var root = @"https://sme.dsebd.org/sme_mkt_depth_3.php";
-            var baseUrl = @"https://sme.dsebd.org/sme_displayCompany.php?name=";
+            var baseUrl = @"sme_displayCompany.php?name=";
 
             HtmlWeb web = new HtmlWeb();
 

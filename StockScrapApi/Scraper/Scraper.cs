@@ -3,6 +3,7 @@ using Hangfire;
 using HtmlAgilityPack;
 using StockScrapApi.Data;
 using StockScrapApi.Models;
+using StockScrapApi.Types;
 
 namespace StockScrapApi.Scraper
 {
@@ -25,7 +26,9 @@ namespace StockScrapApi.Scraper
 
         public async Task ScrapeAndPush(bool? automaticRetry = false, bool? forceScrape = false)
         {
-            var rootUrl = @"https://www.dsebd.org";
+            var defaultUrl = @"https://www.dsebd.org";
+            var atbUrl = @"https://atb.dsebd.org";
+            var smeUrl = @"https://sme.dsebd.org";
 
             var client = new HttpClient();
 
@@ -46,19 +49,26 @@ namespace StockScrapApi.Scraper
             //    return;
             //}
 
-            var compList = _scrapeData.GetCompanyLinks();
+            var defaultList = _scrapeData.GetCompanyLinks();
+            var smeList = _scrapeData.GetSmeLinks();
+            var atbList = _scrapeData.GetAtbLinks();
             var timeStamp = DateTime.Now;
 
-            await GetAllCompInfo();
+            //await GetAllCompInfo(defaultUrl, defaultList);
+            await GetAllCompInfo(smeUrl, smeList, "sme");
+            await GetAllCompInfo(atbUrl, atbList, "atb");
 
             //parsing table
-            async Task GetAllCompInfo()
+            async Task GetAllCompInfo(string rootUrl, List<compData> compList, string? type = null)
             {
                 foreach (var comp in compList)
                 {
                     var CompCode = comp.CompName;
 
+
                     var allTables = _scrapeData.GetTables(rootUrl, comp.Link);
+
+
 
                     var checkComp = _context.companies.Where(t => t.CompanyCode == CompCode).Any();
                     var checkSec = _context.securities.Where(t => t.SecurityCode == CompCode).Any();
@@ -80,6 +90,7 @@ namespace StockScrapApi.Scraper
                         {
                             var company = _mapper.Map<Company>(companyTypeDto);
                             company.Url = comp.Link;
+                            company.Type = type;
                             _context.Add(company);
                             await _context.SaveChangesAsync();
                         }

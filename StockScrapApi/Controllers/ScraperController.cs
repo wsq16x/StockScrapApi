@@ -47,5 +47,14 @@ namespace StockScrapApi.Controllers
             var JobId = _backgroundJobClient.Enqueue(() => _mapFirebaseData.GetProfilePictures());
             return Ok(string.Format("Job Created with Id {0}", JobId));
         }
+
+        [Authorize(Roles = "SuperUser")]
+        [Route("Test")]
+        [HttpPost]
+        public async Task<IActionResult> TestScraper()
+        {
+            await _scraper.ScrapeAndPush();
+            return Ok();
+        }
     }
 }
