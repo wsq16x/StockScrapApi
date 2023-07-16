@@ -48,7 +48,7 @@ namespace StockScrapApi.Controllers
             return Ok(string.Format("Job Created with Id {0}", JobId));
         }
 
-        [Authorize(Roles = "SuperUser")]
+        //[Authorize(Roles = "SuperUser")]
         [Route("Test")]
         [HttpPost]
         public async Task<IActionResult> TestScraper()

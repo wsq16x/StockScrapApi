@@ -1,4 +1,5 @@
 ﻿using HtmlAgilityPack;
+using Microsoft.EntityFrameworkCore.Migrations.Operations;
 using StockScrapApi.Dtos;
 using StockScrapApi.Models;
 using StockScrapApi.Types;
@@ -6,6 +7,8 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using System.Numerics;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -21,7 +24,8 @@ namespace StockScrapApi.Scraper
         {
             _logger = logger;
         }
-        public TableWithHead GetTables( string rootUrl, string url)
+
+        public TableWithHead GetTables(string rootUrl, string url, string? type)
         {
             var DocUrl = String.Format("{0}/{1}", rootUrl, url);
             HtmlWeb page = new HtmlWeb();
@@ -34,11 +38,28 @@ namespace StockScrapApi.Scraper
 
             //foreach (var node in nodes)
             //{
-            //    Console.WriteLine(node.OuterHtml);
-            //    Console.WriteLine("----------------------------------------");
+            //    Console.WriteLine("\n" + nodes.IndexOf(node));
+            //    Console.WriteLine("\n");
+            //    Console.Write(node.OuterHtml);
+            //    Console.WriteLine("\n----------------------------------------");
             //}
+
+            if (type == "atb")
+            {
+                HtmlNode dummyNode1 = HtmlNode.CreateNode("<div></div>");
+                HtmlNode dummyNode2 = HtmlNode.CreateNode("<div></div>");
+                nodes.Insert(4, dummyNode1);
+                nodes.Insert(5, dummyNode2);
+            }
+            else if (type == "sme")
+            {
+                HtmlNode dummyNode1 = HtmlNode.CreateNode("<div></div>");
+                nodes.Insert(5, dummyNode1);
+            }
+
             return new TableWithHead { Head = headers, Nodes = nodes };
         }
+
         public BasicInfo GetBasicInfo(TableWithHead allTables)
         {
             double valF;
@@ -67,35 +88,41 @@ namespace StockScrapApi.Scraper
 
             return basicInfo;
         }
-        public CompanyAddress GetCompanyAddress(TableWithHead allTables)
-        {
-            var addrHeadOffice = allTables.Nodes[12].SelectSingleNode("./tr[1]/td[3]").InnerText;
-            var addrFactory = allTables.Nodes[12].SelectSingleNode("./tr[2]/td[2]").InnerText;
-            var phone = allTables.Nodes[12].SelectSingleNode("./tr[3]/td[2]").InnerText;
-            var fax = allTables.Nodes[12].SelectSingleNode("./tr[4]/td[2]").InnerText;
-            var email = allTables.Nodes[12].SelectSingleNode("./tr[5]/td[2]").InnerText;
-            var webAddress = allTables.Nodes[12].SelectSingleNode("./tr[6]/td[2]").InnerText.Trim();
-            var secretaryName = allTables.Nodes[12].SelectSingleNode("./tr[7]/td[2]").InnerText;
-            var secretaryMobile = allTables.Nodes[12].SelectSingleNode("./tr[8]/td[2]").InnerText;
-            var secretaryPhone = allTables.Nodes[12].SelectSingleNode("./tr[9]/td[2]").InnerText;
-            var secretaryEmail = allTables.Nodes[12].SelectSingleNode("./tr[10]/td[2]").InnerText;
 
-            var companyAddress = new CompanyAddress
+        public CompanyAddress GetCompanyAddress(TableWithHead allTables, string? type)
+        {
+            var companyAddress = new CompanyAddress();
+
+            if (type == "atb" || type == "sme")
             {
-                AddrHeadOffice = addrHeadOffice,
-                AddrFactory = addrFactory,
-                Phone = phone,
-                Fax = fax,
-                Email = email,
-                WebAddress = webAddress,
-                SecretaryName = secretaryName,
-                SecretaryMobile = secretaryMobile,
-                SecretaryPhone = secretaryPhone,
-                SecretaryEmail = secretaryEmail
-            };
+                companyAddress.AddrHeadOffice = allTables.Nodes[12].SelectSingleNode("./tr[1]/td[2]").InnerText;
+                companyAddress.AddrFactory = "";
+                companyAddress.Phone = allTables.Nodes[12].SelectSingleNode("./tr[2]/td[2]").InnerText;
+                companyAddress.Fax = allTables.Nodes[12].SelectSingleNode("./tr[3]/td[2]").InnerText;
+                companyAddress.Email = allTables.Nodes[12].SelectSingleNode("./tr[4]/td[2]").InnerText;
+                companyAddress.WebAddress = allTables.Nodes[12].SelectSingleNode("./tr[5]/td[2]").InnerText.Trim();
+                companyAddress.SecretaryName = allTables.Nodes[12].SelectSingleNode("./tr[6]/td[2]").InnerText;
+                companyAddress.SecretaryMobile = allTables.Nodes[12].SelectSingleNode("./tr[7]/td[2]").InnerText;
+                companyAddress.SecretaryPhone = allTables.Nodes[12].SelectSingleNode("./tr[8]/td[2]").InnerText;
+                companyAddress.SecretaryEmail = allTables.Nodes[12].SelectSingleNode("./tr[9]/td[2]").InnerText;
+            }
+            else
+            {
+                companyAddress.AddrHeadOffice = allTables.Nodes[12].SelectSingleNode("./tr[1]/td[3]").InnerText;
+                companyAddress.AddrFactory = allTables.Nodes[12].SelectSingleNode("./tr[2]/td[2]").InnerText;
+                companyAddress.Phone = allTables.Nodes[12].SelectSingleNode("./tr[3]/td[2]").InnerText;
+                companyAddress.Fax = allTables.Nodes[12].SelectSingleNode("./tr[4]/td[2]").InnerText;
+                companyAddress.Email = allTables.Nodes[12].SelectSingleNode("./tr[5]/td[2]").InnerText;
+                companyAddress.WebAddress = allTables.Nodes[12].SelectSingleNode("./tr[6]/td[2]").InnerText.Trim();
+                companyAddress.SecretaryName = allTables.Nodes[12].SelectSingleNode("./tr[7]/td[2]").InnerText;
+                companyAddress.SecretaryMobile = allTables.Nodes[12].SelectSingleNode("./tr[8]/td[2]").InnerText;
+                companyAddress.SecretaryPhone = allTables.Nodes[12].SelectSingleNode("./tr[9]/td[2]").InnerText;
+                companyAddress.SecretaryEmail = allTables.Nodes[12].SelectSingleNode("./tr[10]/td[2]").InnerText;
+            }
 
             return companyAddress;
         }
+
         public OtherInfo GetOtherInfo(TableWithHead allTables)
         {
             int valI;
@@ -116,6 +143,7 @@ namespace StockScrapApi.Scraper
 
             return otherInfo;
         }
+
         public List<compData> GetCompanyLinks()
         {
             var html = @"https://www.dsebd.org/company_listing.php";
@@ -153,6 +181,7 @@ namespace StockScrapApi.Scraper
             _logger.LogInformation("Found {0} Links to Scrap.", compList.Count());
             return compList;
         }
+
         public List<ShareHoldingPerct> GetShareHoldingPerct(TableWithHead allTables)
         {
             var count = allTables.Nodes[10].SelectNodes("./tr").Count();
@@ -203,6 +232,7 @@ namespace StockScrapApi.Scraper
 
             return listShare;
         }
+
         public MarketInfo GetMarketInfo(TableWithHead allTables)
         {
             double val;
@@ -248,6 +278,7 @@ namespace StockScrapApi.Scraper
 
             return markInfo;
         }
+
         public CompanyTypeDto GetCompanyDetails(TableWithHead allTables)
         {
             var companyTypeDto = new CompanyTypeDto();
@@ -356,6 +387,5 @@ namespace StockScrapApi.Scraper
 
             return smeLinks;
         }
-
     }
 }

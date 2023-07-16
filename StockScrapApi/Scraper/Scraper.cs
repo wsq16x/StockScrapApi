@@ -65,10 +65,7 @@ namespace StockScrapApi.Scraper
                 {
                     var CompCode = comp.CompName;
 
-
-                    var allTables = _scrapeData.GetTables(rootUrl, comp.Link);
-
-
+                    var allTables = _scrapeData.GetTables(rootUrl, comp.Link, type);
 
                     var checkComp = _context.companies.Where(t => t.CompanyCode == CompCode).Any();
                     var checkSec = _context.securities.Where(t => t.SecurityCode == CompCode).Any();
@@ -104,7 +101,7 @@ namespace StockScrapApi.Scraper
 
                         if (!checkAddr)
                         {
-                            var address = _scrapeData.GetCompanyAddress(allTables);
+                            var address = _scrapeData.GetCompanyAddress(allTables, type);
                             address.CompanyId = companyId;
                             _context.Add(address);
                         }
@@ -144,7 +141,6 @@ namespace StockScrapApi.Scraper
 
                         var checkMarketInfo = _context.marketInfo.Where(a => a.TimeStamp.Date == DateTime.Now.Date && a.CompanyId == companyId).Any();
 
-
                         if (forceScrape == true)
                         {
                             checkMarketInfo = false;
@@ -171,8 +167,6 @@ namespace StockScrapApi.Scraper
                     await _context.SaveChangesAsync();
                 }
             }
-
         }
-
     }
 }
