@@ -54,7 +54,7 @@ namespace StockScrapApi.Scraper
             var atbList = _scrapeData.GetAtbLinks();
             var timeStamp = DateTime.Now;
 
-            //await GetAllCompInfo(defaultUrl, defaultList);
+            await GetAllCompInfo(defaultUrl, defaultList);
             await GetAllCompInfo(smeUrl, smeList, "sme");
             await GetAllCompInfo(atbUrl, atbList, "atb");
 

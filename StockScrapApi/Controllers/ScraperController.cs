@@ -49,12 +49,12 @@ namespace StockScrapApi.Controllers
         }
 
         //[Authorize(Roles = "SuperUser")]
-        [Route("Test")]
-        [HttpPost]
-        public async Task<IActionResult> TestScraper()
-        {
-            await _scraper.ScrapeAndPush();
-            return Ok();
-        }
+        //[Route("Test")]
+        //[HttpPost]
+        //public async Task<IActionResult> TestScraper()
+        //{
+        //    await _scraper.ScrapeAndPush();
+        //    return Ok();
+        //}
     }
 }
