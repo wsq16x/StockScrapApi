@@ -16,14 +16,14 @@ namespace StockScrapApi.HostedServices
         {
             _services = services;
             _logger = logger;
-
         }
+
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
             await FetchFirebaseData(stoppingToken);
-            
+
             //disabled for testing purpose!
-            //await EnqueueJob(stoppingToken);
+            await EnqueueJob(stoppingToken);
         }
 
         private async Task FetchFirebaseData(CancellationToken stoppingToken)
@@ -45,12 +45,11 @@ namespace StockScrapApi.HostedServices
                 await scopedProcessingService.EnqueueJob(stoppingToken);
             }
         }
+
         public override async Task StopAsync(CancellationToken stoppingToken)
         {
             _logger.LogInformation(
                 "Consume Scoped Service Hosted Service is stopping.");
-
-            
 
             await base.StopAsync(stoppingToken);
         }

@@ -14,15 +14,15 @@ namespace StockScrapApi.Dtos
         public string CompanyName { get; set; }
         public string CompanyCode { get; set; }
         public string ScripCode { get; set; }
-        public string Url { get; set; }      
+        public string Url { get; set; }
         public CompanyAddress CompanyAddress { get; set; }
         public OtherInfo OtherInfo { get; set; }
         public BasicInfo BasicInfo { get; set; }
         public List<PersonInclude>? Persons { get; set; }
         public string? LogoUrl { get; set; }
-
-
+        public string? Type { get; set; }
     }
+
     public class PersonInclude
     {
         public Guid Id { get; set; }

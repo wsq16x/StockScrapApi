@@ -15,5 +15,6 @@ namespace StockScrapApi.Dtos
         public string ScripCode { get; set; }
         public string Url { get; set; }
         public string? LogoUrl { get; set; }
+        public string? Type { get; set; }
     }
 }

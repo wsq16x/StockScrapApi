@@ -37,6 +37,9 @@ namespace StockScrapApi.Controllers
             var directory = "/Images/Companies/Logos/";
 
             var dsebdUrl = _configuration.GetValue<string>("DsebdUrl");
+            var atbUrl = _configuration.GetValue<string>("AtbUrl");
+            var smeUrl = _configuration.GetValue<string>("SmeUrl");
+
             var results = await _context.companies.Include("CompanyLogo")
                 .Select(x => new CompanyListDto
                 {
@@ -44,13 +47,13 @@ namespace StockScrapApi.Controllers
                     CompanyName = x.CompanyName,
                     CompanyCode = x.CompanyCode,
                     ScripCode = x.ScripCode,
-                    Url = dsebdUrl + x.Url,
-                    LogoUrl = x.CompanyLogo != null ? baseUrl + directory + x.CompanyLogo.LogoPath : null
+                    Url = x.Type == "atb" ? atbUrl + x.Url : x.Type == "sme" ? smeUrl + x.Url : dsebdUrl + x.Url,
+                    LogoUrl = x.CompanyLogo != null ? baseUrl + directory + x.CompanyLogo.LogoPath : null,
+                    Type = x.Type
                 }).ToListAsync();
 
             return Ok(results);
         }
-
 
         [HttpGet]
         [Route("GetCompaniesWithInfo")]
@@ -69,6 +72,8 @@ namespace StockScrapApi.Controllers
             var directoryPerson = "/Images/Persons/Pictures/";
 
             var dsebdUrl = _configuration.GetValue<string>("DsebdUrl");
+            var atbUrl = _configuration.GetValue<string>("AtbUrl");
+            var smeUrl = _configuration.GetValue<string>("SmeUrl");
 
             var result = await _context.companies.Where(x => x.Id == Id).Include("CompanyAddress").Include("BasicInfo").Include("OtherInfo").Include("CompanyLogo").Include("Persons")
                 .Select(a => new CompanyReadDto
@@ -77,19 +82,19 @@ namespace StockScrapApi.Controllers
                     CompanyName = a.CompanyName,
                     CompanyCode = a.CompanyCode,
                     ScripCode = a.ScripCode,
-                    Url = dsebdUrl + a.Url,
+                    Url = a.Type == "atb" ? atbUrl + a.Url : a.Type == "sme" ? smeUrl + a.Url : dsebdUrl + a.Url,
                     BasicInfo = a.BasicInfo,
                     CompanyAddress = a.CompanyAddress,
                     OtherInfo = a.OtherInfo,
                     LogoUrl = a.CompanyLogo != null ? baseUrl + directory + a.CompanyLogo.LogoPath : null,
+                    Type = a.Type,
                     Persons = a.Persons.Select(p => new PersonInclude
                     {
-                        Id=p.Id,
+                        Id = p.Id,
                         Name = p.Name,
                         Designation = p.Designation,
                         ImageUrl = p.profilePicture != null ? baseUrl + directoryPerson + p.profilePicture.ImagePath : null
                     }).ToList()
-
                 }).FirstOrDefaultAsync();
 
             if (result == null)
@@ -124,8 +129,6 @@ namespace StockScrapApi.Controllers
                 return BadRequest(ModelState);
             }
 
-
-
             var ContentTypes = new List<string> { "image/png", "image/jpeg" };
             string? imagePath = null;
             string? fullImagePath = null;
@@ -151,19 +154,15 @@ namespace StockScrapApi.Controllers
                 imagePath = GeneratedfileName;
 
                 _logger.LogInformation("Image saved at '{0}'", filePath);
-
             }
 
-
             var exisitingCompany = await _context.companyLogos.Where(x => x.CompanyId == companyLogoDto.Id).FirstOrDefaultAsync();
-            
 
             if (exisitingCompany != null)
             {
                 return BadRequest("Logo exists. Please delete first.");
             }
-            
-            
+
             var logo = new CompanyLogo
             {
                 CompanyId = companyLogoDto.Id,
@@ -175,7 +174,7 @@ namespace StockScrapApi.Controllers
                 _context.Add(logo);
                 await _context.SaveChangesAsync();
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 _logger.LogError(ex, "Error occured adding logo.", ex.Message);
                 if (fullImagePath != null)
@@ -187,14 +186,13 @@ namespace StockScrapApi.Controllers
             }
 
             return NoContent();
-
         }
 
         [Authorize(Roles = "Admin,SuperUser")]
         [HttpDelete]
         [Route("logo")]
         public async Task<IActionResult> DeleteLogo(Guid Id)
-        { 
+        {
             var companyLogo = await _context.companyLogos.Where(x => x.CompanyId == Id).FirstOrDefaultAsync();
 
             if (companyLogo == null)
@@ -212,7 +210,7 @@ namespace StockScrapApi.Controllers
                 _context.Remove(companyLogo);
                 await _context.SaveChangesAsync();
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 return StatusCode(StatusCodes.Status500InternalServerError, "Failed to delete logo. Please try again later.");
             }
