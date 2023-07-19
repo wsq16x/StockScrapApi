@@ -25,10 +25,10 @@ namespace StockScrapApi.Scraper
         CompanyTypeDto GetCompanyDetails(TableWithHead allTables);
 
         MarketInfo GetMarketInfo(TableWithHead allTables);
+      
+        OtherInfo GetOtherInfo(TableWithHead allTables, string? type);
 
-        OtherInfo GetOtherInfo(TableWithHead allTables);
-
-        List<ShareHoldingPerct> GetShareHoldingPerct(TableWithHead allTables);
+        List<ShareHoldingPerct> GetShareHoldingPerct(TableWithHead allTables, string? type);
        
         CompanyAddress GetCompanyAddress(TableWithHead allTables, string? type);
     }

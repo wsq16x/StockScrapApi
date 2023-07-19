@@ -95,51 +95,53 @@ namespace StockScrapApi.Scraper
 
             if (type == "atb" || type == "sme")
             {
-                companyAddress.AddrHeadOffice = allTables.Nodes[12].SelectSingleNode("./tr[1]/td[2]").InnerText;
+                companyAddress.AddrHeadOffice = allTables.Nodes[12].SelectSingleNode("./tr[1]/td[2]").InnerText.Trim();
                 companyAddress.AddrFactory = "";
-                companyAddress.Phone = allTables.Nodes[12].SelectSingleNode("./tr[2]/td[2]").InnerText;
-                companyAddress.Fax = allTables.Nodes[12].SelectSingleNode("./tr[3]/td[2]").InnerText;
-                companyAddress.Email = allTables.Nodes[12].SelectSingleNode("./tr[4]/td[2]").InnerText;
+                companyAddress.Phone = allTables.Nodes[12].SelectSingleNode("./tr[2]/td[2]").InnerText.Trim();
+                companyAddress.Fax = allTables.Nodes[12].SelectSingleNode("./tr[3]/td[2]").InnerText.Trim();
+                companyAddress.Email = allTables.Nodes[12].SelectSingleNode("./tr[4]/td[2]").InnerText.Trim();
                 companyAddress.WebAddress = allTables.Nodes[12].SelectSingleNode("./tr[5]/td[2]").InnerText.Trim();
-                companyAddress.SecretaryName = allTables.Nodes[12].SelectSingleNode("./tr[6]/td[2]").InnerText;
-                companyAddress.SecretaryMobile = allTables.Nodes[12].SelectSingleNode("./tr[7]/td[2]").InnerText;
-                companyAddress.SecretaryPhone = allTables.Nodes[12].SelectSingleNode("./tr[8]/td[2]").InnerText;
-                companyAddress.SecretaryEmail = allTables.Nodes[12].SelectSingleNode("./tr[9]/td[2]").InnerText;
+                companyAddress.SecretaryName = allTables.Nodes[12].SelectSingleNode("./tr[6]/td[2]").InnerText.Trim();
+                companyAddress.SecretaryMobile = allTables.Nodes[12].SelectSingleNode("./tr[7]/td[2]").InnerText.Trim();
+                companyAddress.SecretaryPhone = allTables.Nodes[12].SelectSingleNode("./tr[8]/td[2]").InnerText.Trim();
+                companyAddress.SecretaryEmail = allTables.Nodes[12].SelectSingleNode("./tr[9]/td[2]").InnerText.Trim();
             }
             else
             {
-                companyAddress.AddrHeadOffice = allTables.Nodes[12].SelectSingleNode("./tr[1]/td[3]").InnerText;
-                companyAddress.AddrFactory = allTables.Nodes[12].SelectSingleNode("./tr[2]/td[2]").InnerText;
-                companyAddress.Phone = allTables.Nodes[12].SelectSingleNode("./tr[3]/td[2]").InnerText;
-                companyAddress.Fax = allTables.Nodes[12].SelectSingleNode("./tr[4]/td[2]").InnerText;
-                companyAddress.Email = allTables.Nodes[12].SelectSingleNode("./tr[5]/td[2]").InnerText;
+                companyAddress.AddrHeadOffice = allTables.Nodes[12].SelectSingleNode("./tr[1]/td[3]").InnerText.Trim();
+                companyAddress.AddrFactory = allTables.Nodes[12].SelectSingleNode("./tr[2]/td[2]").InnerText.Trim();
+                companyAddress.Phone = allTables.Nodes[12].SelectSingleNode("./tr[3]/td[2]").InnerText.Trim();
+                companyAddress.Fax = allTables.Nodes[12].SelectSingleNode("./tr[4]/td[2]").InnerText.Trim();
+                companyAddress.Email = allTables.Nodes[12].SelectSingleNode("./tr[5]/td[2]").InnerText.Trim();
                 companyAddress.WebAddress = allTables.Nodes[12].SelectSingleNode("./tr[6]/td[2]").InnerText.Trim();
-                companyAddress.SecretaryName = allTables.Nodes[12].SelectSingleNode("./tr[7]/td[2]").InnerText;
-                companyAddress.SecretaryMobile = allTables.Nodes[12].SelectSingleNode("./tr[8]/td[2]").InnerText;
-                companyAddress.SecretaryPhone = allTables.Nodes[12].SelectSingleNode("./tr[9]/td[2]").InnerText;
-                companyAddress.SecretaryEmail = allTables.Nodes[12].SelectSingleNode("./tr[10]/td[2]").InnerText;
+                companyAddress.SecretaryName = allTables.Nodes[12].SelectSingleNode("./tr[7]/td[2]").InnerText.Trim();
+                companyAddress.SecretaryMobile = allTables.Nodes[12].SelectSingleNode("./tr[8]/td[2]").InnerText.Trim();
+                companyAddress.SecretaryPhone = allTables.Nodes[12].SelectSingleNode("./tr[9]/td[2]").InnerText.Trim();
+                companyAddress.SecretaryEmail = allTables.Nodes[12].SelectSingleNode("./tr[10]/td[2]").InnerText.Trim();
             }
 
             return companyAddress;
         }
-
-        public OtherInfo GetOtherInfo(TableWithHead allTables)
+        
+        public OtherInfo GetOtherInfo(TableWithHead allTables, string? type)
         {
             int valI;
 
             var otherInfo = new OtherInfo();
 
+            var electronicShareNode = (type == "sme" ? "./tr[2]/td[2]" : "./tr[3]/td[2]");
+
             var listingYear = allTables.Nodes[10].SelectSingleNode("./tr[1]/td[2]").InnerText;
 
             otherInfo.ListingYear = int.TryParse(listingYear, out valI) ? valI : null;
-            otherInfo.MarketCategory = allTables.Nodes[10].SelectSingleNode("./tr[2]/td[2]").InnerText;
-            otherInfo.ElectronicShare = allTables.Nodes[10].SelectSingleNode("./tr[3]/td[2]").InnerText;
+            otherInfo.MarketCategory = type == "sme" ? "-" : allTables.Nodes[10].SelectSingleNode("./tr[2]/td[2]").InnerText.Trim();
+            otherInfo.ElectronicShare = allTables.Nodes[10].SelectSingleNode(electronicShareNode).InnerText.Trim();
 
             var countRows = allTables.Nodes[10].SelectNodes("./tr").Count();
 
             string remarkPath = string.Format("./tr[{0}]/td[2]", countRows);
 
-            otherInfo.Remarks = allTables.Nodes[10].SelectSingleNode(remarkPath).InnerText;
+            otherInfo.Remarks = allTables.Nodes[10].SelectSingleNode(remarkPath).InnerText.Trim();
 
             return otherInfo;
         }
@@ -182,7 +184,7 @@ namespace StockScrapApi.Scraper
             return compList;
         }
 
-        public List<ShareHoldingPerct> GetShareHoldingPerct(TableWithHead allTables)
+        public List<ShareHoldingPerct> GetShareHoldingPerct(TableWithHead allTables, string? type)
         {
             var count = allTables.Nodes[10].SelectNodes("./tr").Count();
 
@@ -190,7 +192,7 @@ namespace StockScrapApi.Scraper
 
             if (count > 4)
             {
-                for (int i = 4; i < count; i++)
+                for (int i = (type == "sme" ? 3: 4); i < count; i++)
                 {
                     double valF;
                     int valI;

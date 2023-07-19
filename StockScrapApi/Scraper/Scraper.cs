@@ -110,7 +110,7 @@ namespace StockScrapApi.Scraper
 
                         if (!checkOtherInfo)
                         {
-                            var otherInfo = _scrapeData.GetOtherInfo(allTables);
+                            var otherInfo = _scrapeData.GetOtherInfo(allTables, type);
                             otherInfo.CompanyId = companyId;
                             _context.Add(otherInfo);
                         }
@@ -128,7 +128,7 @@ namespace StockScrapApi.Scraper
 
                         //_context.SaveChanges();
 
-                        var shareHoldPerct = _scrapeData.GetShareHoldingPerct(allTables);
+                        var shareHoldPerct = _scrapeData.GetShareHoldingPerct(allTables, type);
                         foreach (var item in shareHoldPerct)
                         {
                             var checkinfo = _context.shareHoldingPercts.Where(a => a.Year == item.Year && a.CompanyId == companyId && a.Month == item.Month).Any();
