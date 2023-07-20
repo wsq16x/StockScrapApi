@@ -122,7 +122,7 @@ namespace StockScrapApi.Scraper
 
             return companyAddress;
         }
-        
+
         public OtherInfo GetOtherInfo(TableWithHead allTables, string? type)
         {
             int valI;
@@ -190,9 +190,9 @@ namespace StockScrapApi.Scraper
 
             List<ShareHoldingPerct> listShare = new List<ShareHoldingPerct>();
 
-            if (count > 4)
+            if (count >= 4)
             {
-                for (int i = (type == "sme" ? 3: 4); i < count; i++)
+                for (int i = (type == "sme" ? 3 : 4); i < count; i++)
                 {
                     double valF;
                     int valI;
