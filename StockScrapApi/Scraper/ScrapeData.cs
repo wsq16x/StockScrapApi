@@ -190,7 +190,7 @@ namespace StockScrapApi.Scraper
 
             List<ShareHoldingPerct> listShare = new List<ShareHoldingPerct>();
 
-            if (count >= 4)
+            if (count > (type == "sme" ? 3 : 4))
             {
                 for (int i = (type == "sme" ? 3 : 4); i < count; i++)
                 {
