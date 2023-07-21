@@ -65,14 +65,14 @@ namespace StockScrapApi.Scraper
             double valF;
             int valI;
 
-            var authorizedCapital = allTables.Nodes[2].SelectSingleNode("./tr[1]/td[1]").InnerText;
-            var debutTradingDate = allTables.Nodes[2].SelectSingleNode("./tr[1]/td[2]").InnerText;
-            var instrumentType = allTables.Nodes[2].SelectSingleNode("./tr[2]/td[2]").InnerText;
-            var faceParValue = allTables.Nodes[2].SelectSingleNode("./tr[3]/td[1]").InnerText;
-            var paidUpCapital = allTables.Nodes[2].SelectSingleNode("./tr[2]/td[1]").InnerText;
-            var marketLot = allTables.Nodes[2].SelectSingleNode("./tr[3]/td[2]").InnerText;
-            var totalOutstandingSecurity = allTables.Nodes[2].SelectSingleNode("./tr[4]/td[1]").InnerText;
-            var sector = allTables.Nodes[2].SelectSingleNode("./tr[4]/td[2]").InnerText;
+            var authorizedCapital = allTables.Nodes[2].SelectSingleNode("./tr[1]/td[1]").InnerText.Trim();
+            var debutTradingDate = allTables.Nodes[2].SelectSingleNode("./tr[1]/td[2]").InnerText.Trim();
+            var instrumentType = allTables.Nodes[2].SelectSingleNode("./tr[2]/td[2]").InnerText.Trim();
+            var faceParValue = allTables.Nodes[2].SelectSingleNode("./tr[3]/td[1]").InnerText.Trim();
+            var paidUpCapital = allTables.Nodes[2].SelectSingleNode("./tr[2]/td[1]").InnerText.Trim();
+            var marketLot = allTables.Nodes[2].SelectSingleNode("./tr[3]/td[2]").InnerText.Trim();
+            var totalOutstandingSecurity = allTables.Nodes[2].SelectSingleNode("./tr[4]/td[1]").InnerText.Trim();
+            var sector = allTables.Nodes[2].SelectSingleNode("./tr[4]/td[2]").InnerText.Trim();
 
             var basicInfo = new BasicInfo
             {
@@ -122,7 +122,7 @@ namespace StockScrapApi.Scraper
 
             return companyAddress;
         }
-        
+
         public OtherInfo GetOtherInfo(TableWithHead allTables, string? type)
         {
             int valI;
@@ -190,9 +190,9 @@ namespace StockScrapApi.Scraper
 
             List<ShareHoldingPerct> listShare = new List<ShareHoldingPerct>();
 
-            if (count > 4)
+            if (count > (type == "sme" ? 3 : 4))
             {
-                for (int i = (type == "sme" ? 3: 4); i < count; i++)
+                for (int i = (type == "sme" ? 3 : 4); i < count; i++)
                 {
                     double valF;
                     int valI;
