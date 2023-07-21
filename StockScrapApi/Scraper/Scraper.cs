@@ -26,6 +26,8 @@ namespace StockScrapApi.Scraper
 
         public async Task ScrapeAndPush(bool? automaticRetry = false, bool? forceScrape = false)
         {
+            bool errorOccured;
+
             var defaultUrl = @"https://www.dsebd.org";
             var atbUrl = @"https://atb.dsebd.org";
             var smeUrl = @"https://sme.dsebd.org";
@@ -49,14 +51,23 @@ namespace StockScrapApi.Scraper
             //    return;
             //}
 
-            var defaultList = _scrapeData.GetCompanyLinks();
-            var smeList = _scrapeData.GetSmeLinks();
-            var atbList = _scrapeData.GetAtbLinks();
-            var timeStamp = DateTime.Now;
+            try
+            {
+                var defaultList = _scrapeData.GetCompanyLinks();
+                var smeList = _scrapeData.GetSmeLinks();
+                var atbList = _scrapeData.GetAtbLinks();
+                var timeStamp = DateTime.Now;
 
-            await GetAllCompInfo(defaultUrl, defaultList);
-            await GetAllCompInfo(smeUrl, smeList, "sme");
-            await GetAllCompInfo(atbUrl, atbList, "atb");
+                await GetAllCompInfo(defaultUrl, defaultList);
+                await GetAllCompInfo(smeUrl, smeList, "sme");
+                await GetAllCompInfo(atbUrl, atbList, "atb");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "An error occured running the scrapper!");
+                throw ex;
+            }
+
 
             //parsing table
             async Task GetAllCompInfo(string rootUrl, List<compData> compList, string? type = null)
