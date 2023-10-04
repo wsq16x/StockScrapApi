@@ -34,8 +34,6 @@ builder.Services.AddAuthentication();
 builder.Services.ConfigureIdentity();
 builder.Services.ConfigureAuthorization();
 
-
-
 builder.Services.ConfigureJWT(builder.Configuration);
 
 builder.Services.AddControllers().AddNewtonsoftJson(
@@ -44,6 +42,7 @@ builder.Services.AddControllers().AddNewtonsoftJson(
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddTransient<IScrapeData, ScrapeData>();
+builder.Services.AddTransient<IAdditionalScrapers, AdditionalScrapers>();
 builder.Services.AddTransient<IScraper, Scraper>();
 builder.Services.AddTransient<IGetFirebaseData, GetFirebaseData>();
 builder.Services.AddTransient<IMapFirebaseData, MapFirebaseData>();
@@ -69,7 +68,6 @@ var app = builder.Build();
 
 await app.ConfigureSuperUser();
 
-
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
@@ -92,12 +90,9 @@ app.UseCors("AllowAll");
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 
-
 app.UseAuthentication();
 app.UseAuthorization();
 app.UseEndpoints(opt => opt.MapHangfireDashboard("/hangfire"));
-
-
 
 app.UseStaticFiles(new StaticFileOptions
 {
@@ -106,7 +101,6 @@ app.UseStaticFiles(new StaticFileOptions
     RequestPath = "/Images"
 });
 app.MapControllers();
-
 
 try
 {

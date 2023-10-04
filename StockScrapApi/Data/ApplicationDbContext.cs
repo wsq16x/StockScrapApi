@@ -15,12 +15,11 @@ namespace StockScrapApi.Data
     {
         public ApplicationDbContext(DbContextOptions options) : base(options)
         {
-
         }
 
         public DbSet<Company> companies { get; set; }
         public DbSet<BasicInfo> basicInfo { get; set; }
-        public DbSet<CompanyAddress>  companyAddresses { get; set; }
+        public DbSet<CompanyAddress> companyAddresses { get; set; }
         public DbSet<MarketInfo> marketInfo { get; set; }
         public DbSet<OtherInfo> otherInfo { get; set; }
         public DbSet<ShareHoldingPerct> shareHoldingPercts { get; set; }
@@ -31,13 +30,14 @@ namespace StockScrapApi.Data
         public DbSet<CompanyFirebase> companiesFirebase { get; set; }
         public DbSet<PersonFirebase> personsFirebase { get; set; }
         public DbSet<ProfilePicture> profilePictures { get; set; }
+        public DbSet<Dsex> DsexShares { get; set; }
+        public DbSet<Dse30> Dse30Shares { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);
 
             builder.ApplyConfiguration(new RoleConfiguration());
-
         }
     }
 }
